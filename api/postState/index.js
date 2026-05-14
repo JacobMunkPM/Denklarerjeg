@@ -1,13 +1,9 @@
 const { MongoClient } = require('mongodb');
 
-let client;
-
 module.exports = async function (context, req) {
+  const client = new MongoClient(process.env.MONGO_URI);
   try {
-    if (!client) {
-      client = new MongoClient(process.env.MONGO_URI);
-      await client.connect();
-    }
+    await client.connect();
     const state = req.body;
     const db = client.db('DenKlarerJeg');
     const collection = db.collection('state');
@@ -19,5 +15,7 @@ module.exports = async function (context, req) {
     context.res = { status: 200, body: 'OK' };
   } catch (e) {
     context.res = { status: 500, body: 'Fejl: ' + e.message };
+  } finally {
+    await client.close();
   }
 };
