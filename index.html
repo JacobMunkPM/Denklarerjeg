@@ -1249,7 +1249,7 @@ function setSyncStatus(status) {
 async function loadFromCloud() {
   setSyncStatus('syncing');
   try {
-    const res = await fetch(`${API_BASE}/getState?code=${SHARED_CODE}`);
+    const res = await fetch(`${API_BASE}/getState`);
     if (res.ok) { const data = await res.json(); if (data && data.tasks) state = data; setSyncStatus('ok'); }
     else setSyncStatus('error');
   } catch (e) { setSyncStatus('error'); }
@@ -1261,7 +1261,7 @@ async function loadFromCloud() {
 async function saveToCloud() {
   setSyncStatus('syncing');
   try {
-    const res = await fetch(`${API_BASE}/postState`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: SHARED_CODE, state }) });
+    const res = await fetch(`${API_BASE}/postState`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) });
     if (res.ok) setSyncStatus('ok');
     else { setSyncStatus('error'); showToast('⚠️ Kunne ikke gemme – prøv igen'); }
   } catch (e) { setSyncStatus('error'); showToast('⚠️ Offline – ændringer ikke gemt'); }
