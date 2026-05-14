@@ -1,13 +1,9 @@
 const { MongoClient } = require('mongodb');
 
-let client;
-
 module.exports = async function (context, req) {
+  const client = new MongoClient(process.env.MONGO_URI);
   try {
-    if (!client) {
-      client = new MongoClient(process.env.MONGO_URI);
-      await client.connect();
-    }
+    await client.connect();
     const db = client.db('DenKlarerJeg');
     const collection = db.collection('state');
     const doc = await collection.findOne({ _id: 'shared' });
@@ -18,5 +14,7 @@ module.exports = async function (context, req) {
     };
   } catch (e) {
     context.res = { status: 500, body: 'Fejl: ' + e.message };
+  } finally {
+    await client.close();
   }
 };
