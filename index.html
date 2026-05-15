@@ -225,7 +225,7 @@
 
   .family-cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
@@ -796,23 +796,14 @@
   <div class="app-header">
     <div class="header-top">
       <div class="app-title">🐦 Den klarer jeg!</div>
+      <button onclick="showScreen('admin')" title="Admin" style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.6);border-radius:50%;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform 0.15s,background 0.2s;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4.5" fill="white"/>
+          <path d="M3 21c0-4.418 4.029-8 9-8s9 3.582 9 8" fill="white"/>
+        </svg>
+      </button>
     </div>
     <div class="header-date" id="headerDate"></div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showScreen('dashboard')">🏠 Familie</button>
-      <button class="nav-tab" onclick="showScreen('tasks')" id="myTasksTab">⭐ Mine opgaver</button>
-      <button class="nav-tab" onclick="showScreen('admin')">⚙️ Admin</button>
-    </div>
-    <div style="padding: 6px 4px 0;">
-      <select class="user-picker" id="userPicker" onchange="onUserChange()" style="width:100%; min-width:unset; border-radius:12px;">
-        <option value="">Hvem er du?</option>
-        <option value="Maria">Maria 👩‍🦱</option>
-        <option value="Jacob">Jacob 🧑‍🦱</option>
-        <option value="Oliver">Oliver 👦</option>
-        <option value="Aleksander">Aleksander 👦</option>
-        <option value="Marley">Marley 👧</option>
-      </select>
-    </div>
   </div>
 
   <div class="screen active" id="screen-dashboard">
@@ -926,11 +917,11 @@ const POLL_INTERVAL = 30000;
 const PIN = '6362';
 
 const MEMBERS = [
-  { name: 'Maria', emoji: '👩‍🦱', age: 44, color: '#FF6B6B' },
-  { name: 'Jacob', emoji: '🧑‍🦱', age: 44, color: '#4BA3D3' },
-  { name: 'Oliver', emoji: '👦', age: 12, color: '#6BCB77' },
-  { name: 'Aleksander', emoji: '👦', age: 11, color: '#FF9F43' },
   { name: 'Marley', emoji: '👧', age: 7, color: '#C77DFF' },
+  { name: 'Aleksander', emoji: '👦', age: 11, color: '#FF9F43' },
+  { name: 'Oliver', emoji: '👦', age: 12, color: '#6BCB77' },
+  { name: 'Jacob', emoji: '🧑‍🦱', age: 44, color: '#4BA3D3' },
+  { name: 'Maria', emoji: '👩‍🦱', age: 44, color: '#FF6B6B' },
 ];
 
 const EMOJIS = ['🧹','🍽️','🛒','🐕','🌿','🛏️','🧺','🪣','🚿','🍳','♻️','📦','🔧','🧻','🌸','🚗','📚','🏋️','🎒','🦷','🧴','💊','📬','🪴','🧼','🥗','🍎','🎯','⭐','🌟','💫','🎪'];
@@ -993,9 +984,6 @@ function showScreen(name) {
 }
 
 function onUserChange() {
-  currentUser = document.getElementById('userPicker').value;
-  const tab = document.getElementById('myTasksTab');
-  tab.textContent = currentUser ? `⭐ ${currentUser.split(' ')[0]}` : '⭐ Mine opgaver';
   if (currentScreen === 'tasks') renderTasks();
   if (currentScreen === 'dashboard') renderDashboard();
 }
@@ -1032,9 +1020,9 @@ function renderDashboard() {
     card.className = `family-card${pct === 100 && total > 0 ? ' complete' : ''}`;
     card.style.borderTop = `5px solid ${member.color}`;
     card.onclick = () => {
-      document.getElementById('userPicker').value = member.name;
-      onUserChange();
+      currentUser = member.name;
       showScreen('tasks');
+      renderTasks();
     };
     card.innerHTML = `
       <div class="family-card-star">⭐</div>
