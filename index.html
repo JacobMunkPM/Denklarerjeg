@@ -145,6 +145,7 @@
     color: white;
     text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
     letter-spacing: -0.5px;
+    white-space: nowrap;
   }
 
   .user-picker {
@@ -793,13 +794,17 @@
 
 <div id="app">
   <div class="app-header">
-    <div class="sync-bar">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Forbinder...</span>
-    </div>
     <div class="header-top">
       <div class="app-title">🐦 Den klarer jeg!</div>
-      <select class="user-picker" id="userPicker" onchange="onUserChange()">
+    </div>
+    <div class="header-date" id="headerDate"></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showScreen('dashboard')">🏠 Familie</button>
+      <button class="nav-tab" onclick="showScreen('tasks')" id="myTasksTab">⭐ Mine opgaver</button>
+      <button class="nav-tab" onclick="showScreen('admin')">⚙️ Admin</button>
+    </div>
+    <div style="padding: 6px 4px 0;">
+      <select class="user-picker" id="userPicker" onchange="onUserChange()" style="width:100%; min-width:unset; border-radius:12px;">
         <option value="">Hvem er du?</option>
         <option value="Maria">Maria 👩‍🦱</option>
         <option value="Jacob">Jacob 🧑‍🦱</option>
@@ -807,12 +812,6 @@
         <option value="Aleksander">Aleksander 👦</option>
         <option value="Marley">Marley 👧</option>
       </select>
-    </div>
-    <div class="header-date" id="headerDate"></div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showScreen('dashboard')">🏠 Familie</button>
-      <button class="nav-tab" onclick="showScreen('tasks')" id="myTasksTab">⭐ Mine opgaver</button>
-      <button class="nav-tab" onclick="showScreen('admin')">⚙️ Admin</button>
     </div>
   </div>
 
@@ -855,6 +854,10 @@
     </div>
 
     <div id="adminContent" style="display:none">
+      <div class="sync-bar" style="margin: 12px 16px 0;">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">Forbinder...</span>
+      </div>
       <div class="admin-section">
         <h3>➕ Opret ny opgave</h3>
         <div class="form-group">
@@ -932,6 +935,24 @@ const MEMBERS = [
 
 const EMOJIS = ['🧹','🍽️','🛒','🐕','🌿','🛏️','🧺','🪣','🚿','🍳','♻️','📦','🔧','🧻','🌸','🚗','📚','🏋️','🎒','🦷','🧴','💊','📬','🪴','🧼','🥗','🍎','🎯','⭐','🌟','💫','🎪'];
 const DAYS_DA = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+
+const PRESET_TASKS = [
+  { id: 'task_preset_1', name: 'Vask op efter aftensmad', emoji: '🍽️', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_2', name: 'Vask tøj', emoji: '🧺', assignees: ['Jacob'], recurrence: 'weekly', days: [1,3,5], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_3', name: 'Lav aftensmad', emoji: '🍳', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_4', name: 'Støvsug', emoji: '🧹', assignees: ['Jacob'], recurrence: 'weekly', days: [1,5], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_5', name: 'Tør støv af', emoji: '🧻', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_6', name: 'Ryd op på kontorbord', emoji: '📦', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_7', name: 'Rengør toilet', emoji: '🪣', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_8', name: 'Rengør håndvask og spejl på badeværelse', emoji: '🧴', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_9', name: 'Hent Bilka2Go', emoji: '🛒', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_10', name: 'Bestil Bilka2Go', emoji: '🛒', assignees: ['Jacob'], recurrence: 'weekly', days: [3], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_11', name: 'Bestil Hellofresh', emoji: '🌸', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_12', name: 'Tør tørretumbler og vaskemaskine af', emoji: '🧺', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_13', name: 'Rengør opvaskemaskine', emoji: '🍽️', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_14', name: 'Bær skrald ud', emoji: '🗑️', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_15', name: 'Lav kaffe', emoji: '☕', assignees: ['Jacob'], recurrence: 'weekly', days: [0,1,2,3,4], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' }
+];
 
 let state = { tasks: [] };
 let currentUser = '';
@@ -1299,7 +1320,14 @@ async function loadFromCloud() {
   setSyncStatus('syncing');
   try {
     const res = await fetch(`${API_BASE}/getState`);
-    if (res.ok) { const data = await res.json(); if (data && data.tasks) state = data; setSyncStatus('ok'); }
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.tasks) state = data;
+      const existingIds = new Set(state.tasks.map(t => t.id));
+      const newPresets = PRESET_TASKS.filter(t => !existingIds.has(t.id));
+      if (newPresets.length > 0) { state.tasks = [...state.tasks, ...newPresets]; await saveToCloud(); }
+      setSyncStatus('ok');
+    }
     else setSyncStatus('error');
   } catch (e) { setSyncStatus('error'); }
   renderDashboard();
