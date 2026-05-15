@@ -209,6 +209,7 @@
   }
 
   .screen { display: none; padding: 16px; }
+  #screen-admin { position: relative; }
   .screen.active { display: block; }
 
   .dashboard-header {
@@ -795,7 +796,7 @@
 <div id="app">
   <div class="app-header">
     <div class="header-top">
-      <div class="app-title">🐦 Den klarer jeg!</div>
+      <div class="app-title" onclick="showScreen('dashboard')" style="cursor:pointer;">🐦 Den klarer jeg!</div>
       <button onclick="showScreen('admin')" title="Admin" style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.6);border-radius:50%;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform 0.15s,background 0.2s;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="8" r="4.5" fill="white"/>
@@ -803,11 +804,16 @@
         </svg>
       </button>
     </div>
-    <div class="header-date" id="headerDate"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="header-date" id="headerDate"></div>
+      <div class="sync-bar" style="padding:0;">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">Forbinder...</span>
+      </div>
+    </div>
   </div>
 
   <div class="screen active" id="screen-dashboard">
-    <div style="height:12px"></div>
     <div class="family-cards" id="familyCards"></div>
   </div>
 
@@ -831,6 +837,7 @@
 
   <div class="screen" id="screen-admin">
     <div style="height:16px"></div>
+    <button onclick="showScreen('dashboard')" style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.08);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#666;z-index:10;">✕</button>
     <div id="adminLock" class="admin-lock">
       <span class="lock-emoji">🔒</span>
       <h2>Admin-panel</h2>
@@ -845,10 +852,6 @@
     </div>
 
     <div id="adminContent" style="display:none">
-      <div class="sync-bar" style="margin: 12px 16px 0;">
-        <div class="sync-dot" id="syncDot"></div>
-        <span id="syncLabel">Forbinder...</span>
-      </div>
       <div class="admin-section">
         <h3>➕ Opret ny opgave</h3>
         <div class="form-group">
@@ -924,7 +927,7 @@ const MEMBERS = [
   { name: 'Maria', emoji: '👩‍🦱', age: 44, color: '#FF6B6B' },
 ];
 
-const EMOJIS = ['🧹','🍽️','🛒','🐕','🌿','🛏️','🧺','🪣','🚿','🍳','♻️','📦','🔧','🧻','🌸','🚗','📚','🏋️','🎒','🦷','🧴','💊','📬','🪴','🧼','🥗','🍎','🎯','⭐','🌟','💫','🎪'];
+const EMOJIS = ['🧹','🍽️','🛒','🐕','🌿','🛏️','🧺','🪣','🚿','🍳','♻️','📦','🔧','🧻','🌸','🚗','📚','🏋️','🎒','🦷','🪥','🧴','💊','📬','🪴','🧼','🥗','🍎','🎯','⭐','🌟','💫','🎪'];
 const DAYS_DA = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 
 const PRESET_TASKS = [
@@ -1286,12 +1289,12 @@ function renderAdminTaskList() {
   const container = document.getElementById('adminTaskList');
   if (!state.tasks || state.tasks.length === 0) { container.innerHTML = '<div class="empty-state">🐦 Ingen opgaver endnu</div>'; return; }
   container.innerHTML = '';
-  [...state.tasks].reverse().forEach(task => {
+  [...state.tasks].sort((a, b) => a.name.localeCompare(b.name, 'da')).forEach(task => {
     const item = document.createElement('div');
     item.className = 'admin-task-item';
     const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
     const dayInfo = task.recurrence === 'monthly' ? `Dag ${task.monthDay} i måneden` : task.days && task.days.length > 0 ? task.days.map(d => DAYS_DA[d]).join(', ') : 'Alle dage';
-    item.innerHTML = `<div class="admin-task-emoji">${task.emoji}</div><div class="admin-task-info"><div class="admin-task-name">${task.name}</div><div class="admin-task-detail">${recLabel} · ${dayInfo} · ${task.assignees.join(', ')}</div></div><button class="btn-danger" onclick="deleteTask('${task.id}')">✕</button>`;
+    item.innerHTML = `<div class="admin-task-emoji" style="cursor:pointer;" onclick="openEditModal('${task.id}')">${task.emoji}</div><div class="admin-task-info" style="cursor:pointer;" onclick="openEditModal('${task.id}')"><div class="admin-task-name">${task.name}</div><div class="admin-task-detail">${recLabel} · ${dayInfo} · ${task.assignees.join(', ')}</div></div><button class="btn-secondary" style="padding:6px 10px;font-size:12px;" onclick="openEditModal('${task.id}')">✏️</button><button class="btn-danger" onclick="deleteTask('${task.id}')">✕</button>`;
     container.appendChild(item);
   });
 }
@@ -1338,6 +1341,76 @@ function showToast(msg) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
+
+let editingTaskId = null;
+
+function openEditModal(taskId) {
+  editingTaskId = taskId;
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  document.getElementById('editTaskName').value = task.name;
+  document.getElementById('editSelectedEmoji').value = task.emoji;
+  // Build emoji grid
+  const grid = document.getElementById('editEmojiGrid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'emoji-opt' + (e === task.emoji ? ' selected' : '');
+    div.textContent = e;
+    div.onclick = () => {
+      grid.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('editSelectedEmoji').value = e;
+    };
+    grid.appendChild(div);
+  });
+  document.getElementById('editModalOverlay').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModalOverlay').classList.remove('open');
+  editingTaskId = null;
+}
+
+async function saveEditTask() {
+  const task = state.tasks.find(t => t.id === editingTaskId);
+  if (!task) return;
+  const newName = document.getElementById('editTaskName').value.trim();
+  const newEmoji = document.getElementById('editSelectedEmoji').value;
+  if (!newName) { showToast('Skriv et opgavenavn! ✏️'); return; }
+  task.name = newName;
+  task.emoji = newEmoji;
+  await saveToCloud();
+  renderAdminTaskList();
+  renderDashboard();
+  closeEditModal();
+  showToast('✅ Opgave opdateret!');
+}
+
+// Close on overlay click
+document.getElementById('editModalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+
 </script>
+
+  <div class="edit-modal-overlay" id="editModalOverlay">
+    <div class="edit-modal">
+      <h3>✏️ Rediger opgave</h3>
+      <div class="form-group">
+        <label class="form-label">Opgavenavn</label>
+        <input class="form-input" type="text" id="editTaskName" placeholder="Opgavenavn">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ikon</label>
+        <div class="edit-modal-emoji-grid" id="editEmojiGrid"></div>
+        <input type="hidden" id="editSelectedEmoji">
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-secondary" onclick="closeEditModal()">Annuller</button>
+        <button class="btn-primary" onclick="saveEditTask()">💾 Gem</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
