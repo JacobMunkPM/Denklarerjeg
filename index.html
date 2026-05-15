@@ -837,8 +837,8 @@
 
   <div class="screen" id="screen-admin">
     <div style="height:16px"></div>
-    <button onclick="showScreen('dashboard')" style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.08);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#666;z-index:10;">✕</button>
-    <div id="adminLock" class="admin-lock">
+    <div id="adminLock" class="admin-lock" style="position:relative;">
+      <button onclick="showScreen('dashboard')" style="position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
       <span class="lock-emoji">🔒</span>
       <h2>Admin-panel</h2>
       <p>Skriv PIN-koden for at logge ind</p>
@@ -851,7 +851,8 @@
       <button class="btn-primary" onclick="checkPin()">🔓 Log ind</button>
     </div>
 
-    <div id="adminContent" style="display:none">
+    <div id="adminContent" style="display:none;position:relative;">
+      <button onclick="showScreen('dashboard')" style="position:absolute;top:0;right:0;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;z-index:10;">✕</button>
       <div class="admin-section">
         <h3>➕ Opret ny opgave</h3>
         <div class="form-group">
@@ -958,6 +959,7 @@ let assigneeSelection = [];
 let celebrationShown = new Set();
 
 window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('editModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
   setHeaderDate();
   buildEmojiGrid();
   buildAssignees();
@@ -1387,15 +1389,13 @@ async function saveEditTask() {
   showToast('✅ Opgave opdateret!');
 }
 
-// Close on overlay click
-document.getElementById('editModalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeEditModal();
-});
+
 
 </script>
 
   <div class="edit-modal-overlay" id="editModalOverlay">
-    <div class="edit-modal">
+    <div class="edit-modal" style="position:relative;">
+      <button onclick="closeEditModal()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
       <h3>✏️ Rediger opgave</h3>
       <div class="form-group">
         <label class="form-label">Opgavenavn</label>
