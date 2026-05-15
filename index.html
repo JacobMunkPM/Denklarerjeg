@@ -719,6 +719,8 @@
     width: 100%;
     max-width: 420px;
     box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    max-height: 90vh;
+    overflow-y: auto;
   }
   .edit-modal h3 { font-family: var(--font-main); font-size: 18px; margin: 0 0 16px; color: #333; }
   .edit-modal-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; margin: 8px 0 16px; }
@@ -1370,13 +1372,28 @@ function showToast(msg) {
 
 let editingTaskId = null;
 
+let editAssigneeSelection = [];
+let editSelectedDays = { daily: [], weekly: [], monthly: [] };
+let editCurrentRecurrence = 'daily';
+
+function setEditRecurrence(type) {
+  editCurrentRecurrence = type;
+  ['daily','weekly','monthly'].forEach(t => {
+    document.getElementById('editRec' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === type);
+    document.getElementById('editFreq' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('show', t === type);
+  });
+}
+
 function openEditModal(taskId) {
   editingTaskId = taskId;
   const task = state.tasks.find(t => t.id === taskId);
   if (!task) return;
+
+  // Name
   document.getElementById('editTaskName').value = task.name;
+
+  // Emoji
   document.getElementById('editSelectedEmoji').value = task.emoji;
-  // Build emoji grid
   const grid = document.getElementById('editEmojiGrid');
   grid.innerHTML = '';
   EMOJIS.forEach(e => {
@@ -1390,6 +1407,49 @@ function openEditModal(taskId) {
     };
     grid.appendChild(div);
   });
+
+  // Assignees
+  editAssigneeSelection = [...(task.assignees || [])];
+  const ac = document.getElementById('editAssignees');
+  ac.innerHTML = '';
+  MEMBERS.forEach(m => {
+    const chip = document.createElement('div');
+    chip.className = 'checkbox-chip' + (editAssigneeSelection.includes(m.name) ? ' selected' : '');
+    chip.textContent = m.emoji + ' ' + m.name;
+    chip.onclick = () => {
+      chip.classList.toggle('selected');
+      if (chip.classList.contains('selected')) editAssigneeSelection.push(m.name);
+      else editAssigneeSelection = editAssigneeSelection.filter(n => n !== m.name);
+    };
+    ac.appendChild(chip);
+  });
+
+  // Recurrence
+  editCurrentRecurrence = task.recurrence || 'daily';
+  editSelectedDays = { daily: [...(task.recurrence === 'daily' ? (task.days || []) : [])], weekly: [...(task.recurrence === 'weekly' ? (task.days || []) : [])], monthly: [] };
+  setEditRecurrence(editCurrentRecurrence);
+
+  // Day chips
+  ['editDailyDays','editWeeklyDays'].forEach((id, i) => {
+    const type = i === 0 ? 'daily' : 'weekly';
+    const container = document.getElementById(id);
+    container.innerHTML = '';
+    DAYS_DA.forEach((d, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'day-chip' + (editSelectedDays[type].includes(idx) ? ' selected' : '');
+      chip.textContent = d;
+      chip.onclick = () => {
+        chip.classList.toggle('selected');
+        if (chip.classList.contains('selected')) editSelectedDays[type].push(idx);
+        else editSelectedDays[type] = editSelectedDays[type].filter(x => x !== idx);
+      };
+      container.appendChild(chip);
+    });
+  });
+
+  // Monthly day
+  if (task.recurrence === 'monthly') document.getElementById('editMonthlyDay').value = task.monthDay || '';
+
   document.getElementById('editModalOverlay').classList.add('open');
 }
 
@@ -1404,8 +1464,15 @@ async function saveEditTask() {
   const newName = document.getElementById('editTaskName').value.trim();
   const newEmoji = document.getElementById('editSelectedEmoji').value;
   if (!newName) { showToast('Skriv et opgavenavn! ✏️'); return; }
+  if (editAssigneeSelection.length === 0) { showToast('Vælg mindst én person! 👤'); return; }
+  if (editCurrentRecurrence === 'weekly' && editSelectedDays.weekly.length === 0) { showToast('Vælg mindst én ugedag! 📅'); return; }
   task.name = newName;
   task.emoji = newEmoji;
+  task.assignees = [...editAssigneeSelection];
+  task.recurrence = editCurrentRecurrence;
+  if (editCurrentRecurrence === 'daily') task.days = [...editSelectedDays.daily];
+  else if (editCurrentRecurrence === 'weekly') task.days = [...editSelectedDays.weekly];
+  else if (editCurrentRecurrence === 'monthly') { task.monthDay = parseInt(document.getElementById('editMonthlyDay').value); task.days = []; }
   await saveToCloud();
   renderAdminTaskList();
   renderDashboard();
@@ -1429,6 +1496,30 @@ async function saveEditTask() {
         <label class="form-label">Ikon</label>
         <div class="edit-modal-emoji-grid" id="editEmojiGrid"></div>
         <input type="hidden" id="editSelectedEmoji">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tildel til</label>
+        <div class="checkbox-group" id="editAssignees"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gentagelse</label>
+        <div class="recurrence-tabs">
+          <button class="recurrence-tab" onclick="setEditRecurrence('daily')" id="editRecDaily">Daglig</button>
+          <button class="recurrence-tab" onclick="setEditRecurrence('weekly')" id="editRecWeekly">Ugentlig</button>
+          <button class="recurrence-tab" onclick="setEditRecurrence('monthly')" id="editRecMonthly">Månedlig</button>
+        </div>
+        <div class="freq-options" id="editFreqDaily">
+          <label class="form-label" style="margin-top:8px;">Dage (tom = alle dage)</label>
+          <div class="day-chip-group" id="editDailyDays"></div>
+        </div>
+        <div class="freq-options" id="editFreqWeekly">
+          <label class="form-label" style="margin-top:8px;">Dage</label>
+          <div class="day-chip-group" id="editWeeklyDays"></div>
+        </div>
+        <div class="freq-options" id="editFreqMonthly">
+          <label class="form-label" style="margin-top:8px;">Dag i måneden</label>
+          <input class="form-input" type="number" id="editMonthlyDay" min="1" max="31" placeholder="fx 1">
+        </div>
       </div>
       <div class="edit-modal-actions">
         <button class="btn-secondary" onclick="closeEditModal()">Annuller</button>
