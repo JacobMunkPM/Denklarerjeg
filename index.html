@@ -761,6 +761,25 @@
   .dot-Maria { background: #FF6B6B; }
   /* ── One-time recurrence ── */
   .onetime-date-picker { margin-top: 10px; }
+
+  /* Kommende opgaver */
+  .upcoming-btn { display: block; width: 100%; margin-top: 14px; padding: 13px; background: var(--card-bg); border: 2px solid #EEE; border-radius: var(--radius-sm); font-family: var(--font-main); font-size: 15px; font-weight: 700; color: #888; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+  .upcoming-btn:active { transform: scale(0.98); background: #F5F5F5; }
+  .upcoming-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: flex-end; justify-content: center; }
+  .upcoming-modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .upcoming-modal { background: white; border-radius: 24px 24px 0 0; padding: 24px 20px 48px; width: 100%; max-width: 480px; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; position: relative; animation: slideUp 0.25s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .upcoming-modal-title { font-family: var(--font-main); font-size: 20px; font-weight: 800; color: #333; margin-bottom: 20px; padding-right: 40px; }
+  .upcoming-day-group { margin-bottom: 20px; }
+  .upcoming-day-label { font-size: 11px; font-weight: 800; color: #AAA; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; padding-left: 4px; }
+  .upcoming-task-card { background: #F9F9F9; border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: opacity 0.2s, transform 0.15s; border-left: 4px solid transparent; margin-bottom: 8px; user-select: none; -webkit-user-select: none; }
+  .upcoming-task-card:active { transform: scale(0.98); }
+  .upcoming-task-card.done { opacity: 0.55; }
+  .upcoming-task-card.done .upcoming-task-name { text-decoration: line-through; color: #aaa; }
+  .upcoming-task-check { width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; transition: all 0.2s cubic-bezier(.34,1.56,.64,1); }
+  .upcoming-task-card.done .upcoming-task-check { background: var(--grass); border-color: var(--grass); color: white; }
+  .upcoming-task-name { font-family: var(--font-main); font-size: 15px; font-weight: 700; color: #333; flex: 1; min-width: 0; }
+  .upcoming-task-emoji { font-size: 22px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -894,6 +913,7 @@
       </div>
     </div>
     <div id="taskList" class="task-list"></div>
+    <button class="upcoming-btn" id="upcomingBtn" onclick="openUpcomingModal()" style="display:none;">🗓️ Kommende opgaver</button>
   </div>
 
   <div class="screen" id="screen-admin">
@@ -1135,8 +1155,10 @@ function renderTasks() {
     document.getElementById('progressPct').textContent = '0%';
     document.getElementById('progressFill').style.width = '0%';
     document.getElementById('taskList').innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">👆</div><div class="no-tasks-text">Hvem er du?</div><div class="no-tasks-sub">Vælg dit navn øverst til højre</div></div>`;
+    document.getElementById('upcomingBtn').style.display = 'none';
     return;
   }
+  document.getElementById('upcomingBtn').style.display = 'block';
   const member = MEMBERS.find(m => m.name === currentUser);
   document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}`;
   const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
@@ -1191,6 +1213,63 @@ async function toggleTask(taskId) {
   renderTasks();
   renderDashboard();
   await saveToCloud();
+}
+
+function getDateStr(daysFromNow) {
+  const d = new Date(); d.setDate(d.getDate() + daysFromNow); return d.toISOString().split('T')[0];
+}
+function taskIsOnDate(task, dateStr) {
+  const date = new Date(dateStr + 'T12:00:00');
+  const dow = date.getDay(); const dowMon = dow === 0 ? 6 : dow - 1; const dayOfMonth = date.getDate();
+  if (task.recurrence === 'daily') return !task.days || task.days.length === 0 || task.days.includes(dowMon);
+  if (task.recurrence === 'weekly') return task.days && task.days.includes(dowMon);
+  if (task.recurrence === 'monthly') return task.monthDay === dayOfMonth;
+  if (task.recurrence === 'onetime') return task.onetimeDate === dateStr;
+  return false;
+}
+function isCompletedOnDate(task, user, dateStr) {
+  const key = `${user}_${dateStr}`; return !!(task.completions && task.completions[key]);
+}
+async function toggleTaskForDate(taskId, dateStr) {
+  if (!currentUser) return;
+  const task = state.tasks.find(t => t.id === taskId); if (!task) return;
+  const key = `${currentUser}_${dateStr}`;
+  if (!task.completions) task.completions = {};
+  task.completions[key] = !task.completions[key];
+  renderUpcomingModal(); renderTasks(); renderDashboard(); await saveToCloud();
+}
+function openUpcomingModal() { document.getElementById('upcomingModalOverlay').classList.add('open'); renderUpcomingModal(); }
+function closeUpcomingModal() { document.getElementById('upcomingModalOverlay').classList.remove('open'); }
+function renderUpcomingModal() {
+  if (!currentUser) return;
+  const member = MEMBERS.find(m => m.name === currentUser);
+  const color = member ? member.color : '#FF6B6B';
+  const DAYS = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  const MONTHS = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const content = document.getElementById('upcomingModalContent');
+  content.innerHTML = ''; let hasAny = false;
+  for (let i = 1; i <= 7; i++) {
+    const dateStr = getDateStr(i);
+    const date = new Date(dateStr + 'T12:00:00');
+    const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsOnDate(t, dateStr));
+    if (tasks.length === 0) continue;
+    hasAny = true;
+    const dayLabel = DAYS[date.getDay()] + ' ' + date.getDate() + '. ' + MONTHS[date.getMonth()];
+    const group = document.createElement('div');
+    group.className = 'upcoming-day-group';
+    group.innerHTML = `<div class="upcoming-day-label">${dayLabel}</div>`;
+    tasks.forEach(task => {
+      const isDone = isCompletedOnDate(task, currentUser, dateStr);
+      const card = document.createElement('div');
+      card.className = `upcoming-task-card${isDone ? ' done' : ''}`;
+      card.style.borderLeftColor = isDone ? '#CCC' : color;
+      card.innerHTML = `<div class="upcoming-task-check" style="color:${isDone ? 'transparent' : color}">${isDone ? '✓' : ''}</div><div class="upcoming-task-name">${task.name}</div><div class="upcoming-task-emoji">${task.emoji}</div>`;
+      card.onclick = () => toggleTaskForDate(task.id, dateStr);
+      group.appendChild(card);
+    });
+    content.appendChild(group);
+  }
+  if (!hasAny) content.innerHTML = '<div style="text-align:center;padding:40px 0;color:#CCC;font-size:14px;font-weight:600;">🐦 Ingen kommende opgaver de næste 7 dage</div>';
 }
 
 function showCelebration() {
@@ -1695,5 +1774,13 @@ function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
       </div>
     </div>
   </div>
+<div class="upcoming-modal-overlay" id="upcomingModalOverlay" onclick="if(event.target===this)closeUpcomingModal()">
+  <div class="upcoming-modal">
+    <button onclick="closeUpcomingModal()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
+    <div class="upcoming-modal-title">🗓️ Kommende opgaver</div>
+    <div id="upcomingModalContent"></div>
+  </div>
+</div>
+
 </body>
 </html>
