@@ -1080,6 +1080,7 @@ function taskIsToday(task) {
     return task.days.includes(todayDayIndex());
   }
   if (task.recurrence === 'monthly') return task.monthDay === todayMonthDay();
+    if (task.recurrence === 'onetime') return task.onetimeDate === todayStr();
   return false;
 }
 
