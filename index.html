@@ -1509,7 +1509,7 @@ let editCurrentRecurrence = 'daily';
 
 function setEditRecurrence(type) {
   editCurrentRecurrence = type;
-  ['daily','weekly','monthly'].forEach(t => {
+  ['daily','weekly','monthly','onetime'].forEach(t => {
     document.getElementById('editRec' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === type);
     document.getElementById('editFreq' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('show', t === type);
   });
@@ -1559,6 +1559,7 @@ function openEditModal(taskId) {
   editCurrentRecurrence = task.recurrence || 'daily';
   editSelectedDays = { daily: [...(task.recurrence === 'daily' ? (task.days || []) : [])], weekly: [...(task.recurrence === 'weekly' ? (task.days || []) : [])], monthly: [] };
   setEditRecurrence(editCurrentRecurrence);
+  if (task.recurrence === 'onetime') document.getElementById('editOnetimeDate').value = task.onetimeDate || '';
 
   // Day chips
   ['editDailyDays','editWeeklyDays'].forEach((id, i) => {
@@ -1597,6 +1598,7 @@ async function saveEditTask() {
   if (!newName) { showToast('Skriv et opgavenavn! ✏️'); return; }
   if (editAssigneeSelection.length === 0) { showToast('Vælg mindst én person! 👤'); return; }
   if (editCurrentRecurrence === 'weekly' && editSelectedDays.weekly.length === 0) { showToast('Vælg mindst én ugedag! 📅'); return; }
+  if (editCurrentRecurrence === 'onetime' && !document.getElementById('editOnetimeDate').value) { showToast('Vælg en dato! 📅'); return; }
   task.name = newName;
   task.emoji = newEmoji;
   task.assignees = [...editAssigneeSelection];
@@ -1604,6 +1606,7 @@ async function saveEditTask() {
   if (editCurrentRecurrence === 'daily') task.days = [...editSelectedDays.daily];
   else if (editCurrentRecurrence === 'weekly') task.days = [...editSelectedDays.weekly];
   else if (editCurrentRecurrence === 'monthly') { task.monthDay = parseInt(document.getElementById('editMonthlyDay').value); task.days = []; }
+  else if (editCurrentRecurrence === 'onetime') { task.onetimeDate = document.getElementById('editOnetimeDate').value; task.days = []; task.monthDay = null; }
   await saveToCloud();
   renderAdminTaskList();
   renderDashboard();
@@ -1754,6 +1757,7 @@ function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
           <button class="recurrence-tab" onclick="setEditRecurrence('daily')" id="editRecDaily">Daglig</button>
           <button class="recurrence-tab" onclick="setEditRecurrence('weekly')" id="editRecWeekly">Ugentlig</button>
           <button class="recurrence-tab" onclick="setEditRecurrence('monthly')" id="editRecMonthly">Månedlig</button>
+          <button class="recurrence-tab" onclick="setEditRecurrence('onetime')" id="editRecOnetime">Engangs</button>
         </div>
         <div class="freq-options" id="editFreqDaily">
           <label class="form-label" style="margin-top:8px;">Dage (tom = alle dage)</label>
@@ -1766,6 +1770,10 @@ function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
         <div class="freq-options" id="editFreqMonthly">
           <label class="form-label" style="margin-top:8px;">Dag i måneden</label>
           <input class="form-input" type="number" id="editMonthlyDay" min="1" max="31" placeholder="fx 1">
+        </div>
+        <div class="freq-options onetime-date-picker" id="editFreqOnetime">
+          <label class="form-label" style="margin-top:8px;">Dato</label>
+          <input class="form-input" type="date" id="editOnetimeDate">
         </div>
       </div>
       <div class="edit-modal-actions">
