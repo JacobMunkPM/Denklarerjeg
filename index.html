@@ -726,6 +726,41 @@
   .edit-modal-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; margin: 8px 0 16px; }
   .edit-modal-actions { display: flex; gap: 8px; margin-top: 16px; }
   .edit-modal-actions button { flex: 1; }
+
+  /* ── Calendar ── */
+  .cal-section { margin-bottom: 16px; }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .cal-month-title { font-family: var(--font-main); font-size: 16px; font-weight: 700; color: #333; }
+  .cal-nav-btn { background: rgba(0,0,0,0.06); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #666; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day-label { font-size: 10px; font-weight: 700; color: #aaa; text-align: center; padding: 4px 0; }
+  .cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; border-radius: 8px; cursor: pointer; position: relative; gap: 2px; transition: background 0.15s; }
+  .cal-cell:hover { background: rgba(0,0,0,0.05); }
+  .cal-cell.other-month .cal-num { color: #ccc; }
+  .cal-cell.today { background: #FFF3E0; }
+  .cal-cell.today .cal-num { color: var(--coral); font-weight: 700; }
+  .cal-cell.selected { background: var(--coral); }
+  .cal-cell.selected .cal-num { color: white; font-weight: 700; }
+  .cal-num { font-size: 11px; color: #555; line-height: 1; }
+  .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; max-width: 22px; }
+  .cal-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+  .cal-day-detail { margin-top: 12px; background: #F9F9F9; border-radius: 12px; padding: 12px; min-height: 60px; }
+  .cal-day-detail-title { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 8px; }
+  .cal-task-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #F0F0F0; }
+  .cal-task-row:last-child { border-bottom: none; }
+  .cal-task-emoji { font-size: 18px; width: 24px; text-align: center; }
+  .cal-task-info { flex: 1; }
+  .cal-task-name { font-size: 13px; font-weight: 700; color: #333; }
+  .cal-task-who { font-size: 11px; color: #aaa; }
+  .cal-empty { text-align: center; color: #ccc; font-size: 13px; padding: 8px; }
+  /* member dot colors */
+  .dot-Marley { background: #C77DFF; }
+  .dot-Aleksander { background: #FF9F43; }
+  .dot-Oliver { background: #6BCB77; }
+  .dot-Jacob { background: #4BA3D3; }
+  .dot-Maria { background: #FF6B6B; }
+  /* ── One-time recurrence ── */
+  .onetime-date-picker { margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -900,6 +935,7 @@
             <button class="recurrence-tab active" onclick="setRecurrence('daily')" id="recDaily">Daglig</button>
             <button class="recurrence-tab" onclick="setRecurrence('weekly')" id="recWeekly">Ugentlig</button>
             <button class="recurrence-tab" onclick="setRecurrence('monthly')" id="recMonthly">Månedlig</button>
+            <button class="recurrence-tab" onclick="setRecurrence('onetime')" id="recOnetime">Engangs</button>
           </div>
           <div class="freq-options show" id="freqDaily">
             <label class="form-label" style="margin-top:10px">Dage</label>
@@ -913,10 +949,24 @@
             <label class="form-label" style="margin-top:10px">Dag i måneden</label>
             <input class="form-input" id="monthlyDay" type="number" min="1" max="31" placeholder="fx 1">
           </div>
+          <div class="freq-options onetime-date-picker" id="freqOnetime">
+            <label class="form-label" style="margin-top:10px">Dato</label>
+            <input class="form-input" id="onetimeDate" type="date">
+          </div>
         </div>
         <button class="btn-primary" onclick="createTask()">🐦 Tilføj opgave</button>
       </div>
 
+      <div class="admin-section cal-section">
+        <h3>📅 Kalender</h3>
+        <div class="cal-header">
+          <button class="cal-nav-btn" onclick="calPrev()">&#8249;</button>
+          <div class="cal-month-title" id="calMonthTitle"></div>
+          <button class="cal-nav-btn" onclick="calNext()">&#8250;</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-day-detail" id="calDayDetail"><div class="cal-empty">Vælg en dag</div></div>
+      </div>
       <div class="admin-section">
         <h3>📋 Alle opgaver</h3>
         <div id="adminTaskList"></div>
@@ -1200,6 +1250,7 @@ function checkPin() {
     document.getElementById('adminLock').style.display = 'none';
     document.getElementById('adminContent').style.display = 'block';
     renderAdminTaskList();
+    renderCalendar();
   } else {
     ['pin0','pin1','pin2','pin3'].forEach(id => {
       const el = document.getElementById(id);
@@ -1273,7 +1324,7 @@ function toggleDay(type, idx, el) {
 
 function setRecurrence(type) {
   currentRecurrence = type;
-  document.querySelectorAll('.recurrence-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#screen-admin .recurrence-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('rec' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
   document.querySelectorAll('.freq-options').forEach(o => o.classList.remove('show'));
   document.getElementById('freq' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('show');
@@ -1289,7 +1340,9 @@ async function createTask() {
   if (rec === 'daily') days = [...selectedDays.daily];
   if (rec === 'weekly') { if (selectedDays.weekly.length === 0) { showToast('Vælg mindst én ugedag! 📅'); return; } days = [...selectedDays.weekly]; }
   if (rec === 'monthly') { monthDay = parseInt(document.getElementById('monthlyDay').value); if (!monthDay || monthDay < 1 || monthDay > 31) { showToast('Vælg dag i måneden! 📅'); return; } }
-  const task = { id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2), name, emoji, assignees: [...assigneeSelection], recurrence: rec, days, monthDay, completions: {}, createdAt: new Date().toISOString() };
+  let onetimeDate = null;
+  if (rec === 'onetime') { onetimeDate = document.getElementById('onetimeDate').value; if (!onetimeDate) { showToast('Vælg en dato! 📅'); return; } }
+  const task = { id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2), name, emoji, assignees: [...assigneeSelection], recurrence: rec, days, monthDay, onetimeDate, completions: {}, createdAt: new Date().toISOString() };
   state.tasks.push(task);
   await saveToCloud();
   renderAdminTaskList();
@@ -1302,6 +1355,7 @@ async function createTask() {
   document.getElementById('selectedEmoji').value = EMOJIS[0];
   assigneeSelection = [];
   selectedDays = { daily: [], weekly: [], monthly: [] };
+  document.getElementById('onetimeDate').value = '';
 }
 
 async function deleteTask(id) {
@@ -1481,6 +1535,122 @@ async function saveEditTask() {
 }
 
 
+
+
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calSelectedDate = null;
+
+const MONTHS_DA = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+
+function renderCalendar() {
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay = new Date(calYear, calMonth + 1, 0);
+  // Monday-first: 0=Mon..6=Sun
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  document.getElementById('calMonthTitle').textContent = MONTHS_DA[calMonth] + ' ' + calYear;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['M','T','O','T','F','L','S'].forEach(d => {
+    const lbl = document.createElement('div');
+    lbl.className = 'cal-day-label';
+    lbl.textContent = d;
+    grid.appendChild(lbl);
+  });
+
+  // Cells from previous month
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  for (let i = startDow - 1; i >= 0; i--) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    cell.innerHTML = '<div class="cal-num">' + (prevLast - i) + '</div>';
+    grid.appendChild(cell);
+  }
+
+  // This month
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const cell = document.createElement('div');
+    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const isSelected = calSelectedDate === dateStr;
+    cell.className = 'cal-cell' + (isToday ? ' today' : '') + (isSelected ? ' selected' : '');
+    cell.innerHTML = '<div class="cal-num">' + d + '</div>';
+
+    // Get tasks for this day
+    const dayTasks = getTasksForDate(dateStr);
+    if (dayTasks.length > 0) {
+      const dots = document.createElement('div');
+      dots.className = 'cal-dots';
+      const seen = new Set();
+      dayTasks.forEach(t => {
+        t.assignees.forEach(a => {
+          if (!seen.has(a)) {
+            seen.add(a);
+            const dot = document.createElement('div');
+            dot.className = 'cal-dot dot-' + a;
+            dots.appendChild(dot);
+          }
+        });
+      });
+      cell.appendChild(dots);
+    }
+
+    cell.onclick = () => {
+      calSelectedDate = dateStr;
+      renderCalendar();
+      renderCalDayDetail(dateStr);
+    };
+    grid.appendChild(cell);
+  }
+
+  // Fill remaining cells
+  const total = startDow + lastDay.getDate();
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remaining; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    cell.innerHTML = '<div class="cal-num">' + d + '</div>';
+    grid.appendChild(cell);
+  }
+}
+
+function getTasksForDate(dateStr) {
+  if (!state.tasks) return [];
+  const date = new Date(dateStr + 'T12:00:00');
+  const dow = date.getDay(); // 0=Sun
+  const dowMon = dow === 0 ? 6 : dow - 1; // 0=Mon
+  const dayOfMonth = date.getDate();
+
+  return state.tasks.filter(t => {
+    if (t.recurrence === 'daily') return t.days.length === 0 || t.days.includes(dowMon);
+    if (t.recurrence === 'weekly') return t.days.includes(dowMon);
+    if (t.recurrence === 'monthly') return t.monthDay === dayOfMonth;
+    if (t.recurrence === 'onetime') return t.onetimeDate === dateStr;
+    return false;
+  });
+}
+
+function renderCalDayDetail(dateStr) {
+  const detail = document.getElementById('calDayDetail');
+  const tasks = getTasksForDate(dateStr);
+  const date = new Date(dateStr + 'T12:00:00');
+  const days = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const title = days[date.getDay()] + ' ' + date.getDate() + '. ' + months[date.getMonth()];
+  if (tasks.length === 0) {
+    detail.innerHTML = '<div class="cal-day-detail-title">' + title + '</div><div class="cal-empty">Ingen opgaver</div>';
+    return;
+  }
+  detail.innerHTML = '<div class="cal-day-detail-title">' + title + '</div>' +
+    tasks.map(t => '<div class="cal-task-row"><div class="cal-task-emoji">' + t.emoji + '</div><div class="cal-task-info"><div class="cal-task-name">' + t.name + '</div><div class="cal-task-who">' + t.assignees.join(', ') + '</div></div></div>').join('');
+}
+
+function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
 
 </script>
 
