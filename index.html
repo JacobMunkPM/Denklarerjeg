@@ -12,7 +12,7 @@
     --sky-deep: #4BA3D3;
     --sun: #FFD93D;
     --grass: #6BCB77;
-    --grass-dark: #4DA85A;
+    --grass-dark: #4DA85A;h
     --coral: #FF6B6B;
     --coral-light: #FF8E8E;
     --purple: #C77DFF;
@@ -1137,7 +1137,7 @@ function renderTasks() {
     return;
   }
   const member = MEMBERS.find(m => m.name === currentUser);
-  document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}!`;
+  document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}`;
   const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
   const done = tasks.filter(t => isCompleted(t, currentUser)).length;
   const total = tasks.length;
