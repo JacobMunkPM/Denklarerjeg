@@ -765,6 +765,8 @@
   /* Kommende opgaver */
   .upcoming-btn { display: block; width: 100%; margin-top: 14px; padding: 13px; background: var(--card-bg); border: 2px solid #EEE; border-radius: var(--radius-sm); font-family: var(--font-main); font-size: 15px; font-weight: 700; color: #888; cursor: pointer; text-align: center; transition: all 0.2s; box-shadow: var(--shadow-sm); }
   .upcoming-btn:active { transform: scale(0.98); background: #F5F5F5; }
+  .back-btn { display: flex; align-items: center; gap: 8px; background: none; border: none; padding: 4px 0 12px; font-family: var(--font-main); font-size: 16px; font-weight: 700; color: #AAA; cursor: pointer; transition: color 0.15s; }
+  .back-btn:active { color: var(--coral); transform: scale(0.97); }
   .upcoming-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: flex-end; justify-content: center; }
   .upcoming-modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
   .upcoming-modal { background: white; border-radius: 24px 24px 0 0; padding: 24px 20px 48px; width: 100%; max-width: 480px; box-shadow: 0 -8px 40px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; position: relative; animation: slideUp 0.25s cubic-bezier(.34,1.56,.64,1); }
@@ -900,6 +902,7 @@
   <div class="screen" id="screen-tasks">
     <div style="height:16px"></div>
     <div class="tasks-header">
+      <button class="back-btn" onclick="showScreen('dashboard')"><span style="font-size:20px">←</span> Tilbage</button>
       <div class="tasks-welcome" id="tasksWelcome">Vælg dit navn ☝️</div>
       <div class="progress-section">
         <div class="progress-header">
