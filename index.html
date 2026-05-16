@@ -1055,13 +1055,10 @@ function setHeaderDate() {
 function showScreen(name) {
   currentScreen = name;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  const tabs = ['dashboard','tasks','admin'];
-  document.querySelectorAll('.nav-tab')[tabs.indexOf(name)].classList.add('active');
   if (name === 'dashboard') renderDashboard();
   if (name === 'tasks') renderTasks();
-  if (name === 'admin') renderAdminTaskList();
+  if (name === 'admin') { renderAdminTaskList(); if (typeof renderCalendar === 'function') renderCalendar(); }
 }
 
 function onUserChange() {
