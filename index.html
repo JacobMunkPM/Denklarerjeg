@@ -528,6 +528,7 @@
     cursor: pointer;
     transition: transform 0.15s;
     font-family: var(--font-body);
+    box-shadow: 0 2px 8px rgba(255,107,107,0.3);
   }
   .btn-danger:active { transform: scale(0.97); }
   .btn-secondary {
@@ -1472,7 +1473,7 @@ function renderAdminTaskList() {
     item.className = 'admin-task-item';
     const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
     const dayInfo = task.recurrence === 'monthly' ? `Dag ${task.monthDay} i måneden` : task.days && task.days.length > 0 ? task.days.map(d => DAYS_DA[d]).join(', ') : 'Alle dage';
-    item.innerHTML = `<div class="admin-task-emoji" style="cursor:pointer;" onclick="openEditModal('${task.id}')">${task.emoji}</div><div class="admin-task-info" style="cursor:pointer;" onclick="openEditModal('${task.id}')"><div class="admin-task-name">${task.name}</div><div class="admin-task-detail">${recLabel} · ${dayInfo} · ${task.assignees.join(', ')}</div></div><button class="btn-secondary" style="padding:6px 10px;font-size:12px;" onclick="openEditModal('${task.id}')">✏️</button><button class="btn-danger" onclick="deleteTask('${task.id}')">✕</button>`;
+    item.innerHTML = `<div class="admin-task-emoji" style="cursor:pointer;" onclick="openEditModal('${task.id}')">${task.emoji}</div><div class="admin-task-info" style="cursor:pointer;" onclick="openEditModal('${task.id}')"><div class="admin-task-name">${task.name}</div><div class="admin-task-detail">${recLabel} · ${dayInfo} · ${task.assignees.join(', ')}</div></div><button class="btn-secondary" onclick="openEditModal('${task.id}')">✏️</button><button class="btn-danger" onclick="deleteTask('${task.id}')">✕</button>`;
     container.appendChild(item);
   });
 }
