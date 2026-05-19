@@ -1205,7 +1205,7 @@ function renderTasks() {
     container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">🐦</div><div class="no-tasks-text">Ingen opgaver i dag!</div><div class="no-tasks-sub">Du har fri — nyd det!</div></div>`;
     return;
   }
-  const sorted = [...tasks].sort((a, b) => (isCompleted(a, currentUser) ? 1 : 0) - (isCompleted(b, currentUser) ? 1 : 0));
+  const sorted = [...tasks].sort((a, b) => a.name.localeCompare(b.name, 'da'));
   sorted.forEach(task => {
     const isDone = isCompleted(task, currentUser);
     const color = member ? member.color : '#FF6B6B';
