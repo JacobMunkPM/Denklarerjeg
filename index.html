@@ -886,6 +886,81 @@
     border-color: var(--grass);
     color: white;
   }
+
+  /* ── Valgfri opgaver kort ── */
+  .optional-card {
+    background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+    border-radius: var(--radius);
+    padding: 16px 14px 14px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-top: 5px solid var(--sun);
+    position: relative;
+    overflow: hidden;
+  }
+  .optional-card:active { transform: scale(0.97); }
+
+  /* ── Who-picker modal ── */
+  .who-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 600;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .who-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .who-sheet {
+    background: white;
+    border-radius: 24px;
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    animation: celebPop 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .who-title { font-family: var(--font-main); font-size: 18px; font-weight: 800; color: #333; margin-bottom: 6px; }
+  .who-sub { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .who-options { display: flex; flex-direction: column; gap: 8px; }
+  .who-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 2px solid #EEE;
+    background: white;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    transition: all 0.15s;
+  }
+  .who-option:active { transform: scale(0.97); }
+  .who-option:hover { border-color: var(--sun); background: #FFF9E6; }
+  .who-cancel {
+    margin-top: 12px; width: 100%; padding: 10px;
+    border: 2px solid #EEE; border-radius: 14px;
+    background: white; font-family: var(--font-main);
+    font-size: 14px; font-weight: 700; color: #aaa;
+    cursor: pointer;
+  }
+
+  /* ── Løste opgaver sheet ── */
+  .solved-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: #F9F9F9;
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+  .solved-emoji { font-size: 20px; flex-shrink: 0; }
+  .solved-info { flex: 1; }
+  .solved-name { font-family: var(--font-main); font-size: 14px; font-weight: 700; color: #333; }
+  .solved-meta { font-size: 11px; color: #aaa; font-weight: 600; margin-top: 2px; }
   .upcoming-task-emoji { font-size: 20px; flex-shrink: 0; }
   .upcoming-task-name { font-family: var(--font-main); font-size: 14px; font-weight: 700; color: #333; flex: 1; }
   .upcoming-task-who { font-size: 11px; color: #aaa; font-weight: 600; }
@@ -1025,7 +1100,8 @@
     </div>
     <div id="taskList" class="task-list"></div>
     <div style="height:12px"></div>
-    <button class="upcoming-btn" onclick="openUpcoming()">📅 Kommende opgaver</button>
+    <button id="upcomingBtn" class="upcoming-btn" onclick="openUpcoming()">📅 Kommende opgaver</button>
+    <button id="solvedBtn" class="upcoming-btn" onclick="openSolved()" style="display:none;">🏆 Løste opgaver</button>
     <div style="height:80px"></div>
   </div>
 
@@ -1183,6 +1259,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setHeaderDate();
   buildEmojiGrid();
   buildAssignees();
+  buildWhoOptions();
   buildDayChips();
   buildProgressStars();
   loadFromCloud();
@@ -1229,6 +1306,21 @@ function taskIsToday(task) {
 
 function completionKey(userId) { return `${userId}_${todayStr()}`; }
 function isCompleted(task, user) { return !!(task.completions && task.completions[completionKey(user)]); }
+function isOptionalCompleted(task) {
+  if (!task.completions) return false;
+  return Object.keys(task.completions).some(k => k.startsWith('optional_') && task.completions[k]);
+}
+function optionalCompletedBy(task) {
+  if (!task.completions) return null;
+  const key = Object.keys(task.completions).find(k => k.startsWith('optional_') && task.completions[k]);
+  return key ? key.replace(/^optional_/, '').replace(/_\d{4}-\d{2}-\d{2}$/, '') : null;
+}
+function optionalCompletedDate(task) {
+  if (!task.completions) return null;
+  const key = Object.keys(task.completions).find(k => k.startsWith('optional_') && task.completions[k]);
+  return key ? key.split('_').slice(-1)[0] : null;
+}
+function optionalCompletionKey(user) { return `optional_${user}_${todayStr()}`; }
 
 function renderDashboard() {
   const container = document.getElementById('familyCards');
@@ -1258,6 +1350,23 @@ function renderDashboard() {
     `;
     container.appendChild(card);
   });
+
+  // Valgfri opgaver-kort
+  const optTasks = state.tasks.filter(t => t.assignees.includes('Valgfri') && taskIsToday(t));
+  const optDone = optTasks.filter(t => isOptionalCompleted(t)).length;
+  const optTotal = optTasks.length;
+  const optCard = document.createElement('div');
+  optCard.className = 'optional-card';
+  optCard.onclick = () => { currentUser = 'Valgfri'; showScreen('tasks'); renderTasks(); };
+  optCard.innerHTML = `
+    <span class="family-card-emoji">⭐</span>
+    <div class="family-card-name">Valgfri opgaver</div>
+    <div class="mini-progress-track">
+      <div class="mini-progress-fill" style="width:${optTotal === 0 ? 0 : Math.round(optDone/optTotal*100)}%;background:var(--sun)"></div>
+    </div>
+    <div class="mini-progress-label" style="color:#E6A800">${optDone}/${optTotal} · ${optTotal === 0 ? 0 : Math.round(optDone/optTotal*100)}%</div>
+  `;
+  container.appendChild(optCard);
 }
 
 function buildProgressStars() {
@@ -1280,54 +1389,109 @@ function renderTasks() {
     document.getElementById('taskList').innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">👆</div><div class="no-tasks-text">Hvem er du?</div><div class="no-tasks-sub">Vælg dit navn øverst til højre</div></div>`;
     return;
   }
-  const member = MEMBERS.find(m => m.name === currentUser);
-  document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}`;
-  const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
-  const done = tasks.filter(t => isCompleted(t, currentUser)).length;
-  const total = tasks.length;
-  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-  document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
-  const lit = Math.floor(pct / 20);
-  for (let i = 0; i < 5; i++) {
-    const s = document.getElementById(`star-${i}`);
-    if (s) s.classList.toggle('lit', i < lit);
+
+  const isOptional = currentUser === 'Valgfri';
+
+  // Header
+  if (isOptional) {
+    document.getElementById('tasksWelcome').innerHTML = `<span>Valgfri opgaver</span> ⭐`;
+  } else {
+    const member = MEMBERS.find(m => m.name === currentUser);
+    document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}`;
   }
-  if (total > 0 && pct === 100) {
-    const key = currentUser + '_' + todayStr();
-    if (!celebrationShown.has(key)) {
-      celebrationShown.add(key);
-      setTimeout(() => showCelebration(), 400);
+
+  // Progress (skjul for valgfri)
+  const progressSection = document.querySelector('.progress-section');
+  if (progressSection) progressSection.style.display = isOptional ? 'none' : 'block';
+
+  // Upcoming vs Solved button
+  const upcomingBtn = document.getElementById('upcomingBtn');
+  const solvedBtn = document.getElementById('solvedBtn');
+  if (upcomingBtn) upcomingBtn.style.display = isOptional ? 'none' : 'block';
+  if (solvedBtn) solvedBtn.style.display = isOptional ? 'block' : 'none';
+
+  if (!isOptional) {
+    const member = MEMBERS.find(m => m.name === currentUser);
+    const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
+    const done = tasks.filter(t => isCompleted(t, currentUser)).length;
+    const total = tasks.length;
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+    const lit = Math.floor(pct / 20);
+    for (let i = 0; i < 5; i++) {
+      const s = document.getElementById(`star-${i}`);
+      if (s) s.classList.toggle('lit', i < lit);
     }
+    if (total > 0 && pct === 100) {
+      const key = currentUser + '_' + todayStr();
+      if (!celebrationShown.has(key)) {
+        celebrationShown.add(key);
+        setTimeout(() => showCelebration(), 400);
+      }
+    }
+    const container = document.getElementById('taskList');
+    container.innerHTML = '';
+    if (tasks.length === 0) {
+      container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">🐦</div><div class="no-tasks-text">Ingen opgaver i dag!</div><div class="no-tasks-sub">Du har fri — nyd det!</div></div>`;
+      return;
+    }
+    const sorted = [...tasks].sort((a, b) => {
+      const doneA = isCompleted(a, currentUser) ? 1 : 0;
+      const doneB = isCompleted(b, currentUser) ? 1 : 0;
+      if (doneA !== doneB) return doneA - doneB;
+      return a.name.localeCompare(b.name, 'da');
+    });
+    sorted.forEach(task => {
+      const isDone = isCompleted(task, currentUser);
+      const color = member ? member.color : '#FF6B6B';
+      const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
+      const card = document.createElement('div');
+      card.className = `task-card ${isDone ? 'done' : ''}`;
+      card.style.borderLeftColor = isDone ? '#CCC' : color;
+      card.dataset.taskId = task.id;
+      card.innerHTML = `
+        <div class="task-check" style="color:${isDone ? 'transparent' : color}">${isDone ? '✓' : ''}</div>
+        <div class="task-info"><div class="task-name">${task.name}</div><div class="task-meta">${recLabel}</div></div>
+        <div class="task-emoji">${task.emoji}</div>
+      `;
+      card.onclick = () => toggleTask(task.id);
+      container.appendChild(card);
+    });
+  } else {
+    // Valgfri opgaver
+    const tasks = state.tasks.filter(t => t.assignees.includes('Valgfri') && taskIsToday(t));
+    const container = document.getElementById('taskList');
+    container.innerHTML = '';
+    if (tasks.length === 0) {
+      container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">⭐</div><div class="no-tasks-text">Ingen valgfri opgaver i dag!</div><div class="no-tasks-sub">Tilføj dem i admin-panelet</div></div>`;
+      return;
+    }
+    const sorted = [...tasks].sort((a, b) => {
+      const doneA = isOptionalCompleted(a) ? 1 : 0;
+      const doneB = isOptionalCompleted(b) ? 1 : 0;
+      if (doneA !== doneB) return doneA - doneB;
+      return a.name.localeCompare(b.name, 'da');
+    });
+    sorted.forEach(task => {
+      const isDone = isOptionalCompleted(task);
+      const solvedBy = optionalCompletedBy(task);
+      const card = document.createElement('div');
+      card.className = `task-card ${isDone ? 'done' : ''}`;
+      card.style.borderLeftColor = isDone ? '#CCC' : 'var(--sun)';
+      card.dataset.taskId = task.id;
+      card.innerHTML = `
+        <div class="task-check" style="color:${isDone ? 'transparent' : '#E6A800'}">${isDone ? '✓' : ''}</div>
+        <div class="task-info">
+          <div class="task-name">${task.name}</div>
+          <div class="task-meta">${isDone ? `Løst af ${solvedBy}` : ({ daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '')}</div>
+        </div>
+        <div class="task-emoji">${task.emoji}</div>
+      `;
+      if (!isDone) card.onclick = () => openWhoPicker(task.id);
+      container.appendChild(card);
+    });
   }
-  const container = document.getElementById('taskList');
-  container.innerHTML = '';
-  if (tasks.length === 0) {
-    container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">🐦</div><div class="no-tasks-text">Ingen opgaver i dag!</div><div class="no-tasks-sub">Du har fri — nyd det!</div></div>`;
-    return;
-  }
-  const sorted = [...tasks].sort((a, b) => {
-    const doneA = isCompleted(a, currentUser) ? 1 : 0;
-    const doneB = isCompleted(b, currentUser) ? 1 : 0;
-    if (doneA !== doneB) return doneA - doneB;
-    return a.name.localeCompare(b.name, 'da');
-  });
-  sorted.forEach(task => {
-    const isDone = isCompleted(task, currentUser);
-    const color = member ? member.color : '#FF6B6B';
-    const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
-    const card = document.createElement('div');
-    card.className = `task-card ${isDone ? 'done' : ''}`;
-    card.style.borderLeftColor = isDone ? '#CCC' : color;
-    card.dataset.taskId = task.id;
-    card.innerHTML = `
-      <div class="task-check" style="color:${isDone ? 'transparent' : color}">${isDone ? '✓' : ''}</div>
-      <div class="task-info"><div class="task-name">${task.name}</div><div class="task-meta">${recLabel}</div></div>
-      <div class="task-emoji">${task.emoji}</div>
-    `;
-    card.onclick = () => toggleTask(task.id);
-    container.appendChild(card);
-  });
 }
 
 async function toggleTask(taskId) {
@@ -1484,6 +1648,29 @@ function buildAssignees() {
       else assigneeSelection = assigneeSelection.filter(n => n !== m.name);
     };
     container.appendChild(chip);
+  });
+  // Valgfri chip
+  const vChip = document.createElement('div');
+  vChip.className = 'checkbox-chip';
+  vChip.textContent = '⭐ Valgfri';
+  vChip.dataset.name = 'Valgfri';
+  vChip.onclick = () => {
+    vChip.classList.toggle('selected');
+    if (vChip.classList.contains('selected')) assigneeSelection.push('Valgfri');
+    else assigneeSelection = assigneeSelection.filter(n => n !== 'Valgfri');
+  };
+  container.appendChild(vChip);
+}
+
+function buildWhoOptions() {
+  const container = document.getElementById('whoOptions');
+  container.innerHTML = '';
+  MEMBERS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'who-option';
+    btn.innerHTML = `<span style="font-size:22px">${m.emoji}</span> ${m.name}`;
+    btn.onclick = () => pickWho(m.name);
+    container.appendChild(btn);
   });
 }
 
@@ -1663,6 +1850,16 @@ function openEditModal(taskId) {
     };
     ac.appendChild(chip);
   });
+  // Valgfri chip
+  const vChip = document.createElement('div');
+  vChip.className = 'checkbox-chip' + (editAssigneeSelection.includes('Valgfri') ? ' selected' : '');
+  vChip.textContent = '⭐ Valgfri';
+  vChip.onclick = () => {
+    vChip.classList.toggle('selected');
+    if (vChip.classList.contains('selected')) editAssigneeSelection.push('Valgfri');
+    else editAssigneeSelection = editAssigneeSelection.filter(n => n !== 'Valgfri');
+  };
+  ac.appendChild(vChip);
 
   // Recurrence
   editCurrentRecurrence = task.recurrence || 'daily';
@@ -1926,6 +2123,80 @@ function closeUpcoming() {
   document.getElementById('upcomingOverlay').classList.remove('open');
 }
 
+// ── Who-picker (valgfri opgaver) ──
+let whoPickerTaskId = null;
+function openWhoPicker(taskId) {
+  whoPickerTaskId = taskId;
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  document.getElementById('whoPickerTaskName').textContent = task.name;
+  document.getElementById('whoOverlay').classList.add('open');
+}
+function closeWhoPicker() {
+  document.getElementById('whoOverlay').classList.remove('open');
+  whoPickerTaskId = null;
+}
+async function pickWho(memberName) {
+  closeWhoPicker();
+  const task = state.tasks.find(t => t.id === whoPickerTaskId);
+  if (!task) return;
+  if (!task.completions) task.completions = {};
+  task.completions[optionalCompletionKey(memberName)] = true;
+  renderTasks();
+  renderDashboard();
+  await saveToCloud();
+}
+
+// ── Løste opgaver ──
+function openSolved() {
+  const content = document.getElementById('solvedContent');
+  content.innerHTML = '';
+  const now = new Date();
+  const cutoff = new Date(now);
+  cutoff.setDate(cutoff.getDate() - 30);
+  const MONTHS_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+
+  const entries = [];
+  state.tasks.filter(t => t.assignees.includes('Valgfri')).forEach(task => {
+    if (!task.completions) return;
+    Object.keys(task.completions).forEach(key => {
+      if (!key.startsWith('optional_') || !task.completions[key]) return;
+      // key format: optional_Name_YYYY-MM-DD
+      const parts = key.replace('optional_', '').split('_');
+      const dateStr = parts[parts.length - 1];
+      const who = parts.slice(0, -1).join('_');
+      const date = new Date(dateStr + 'T12:00:00');
+      if (date >= cutoff) entries.push({ task, who, date, dateStr });
+    });
+  });
+
+  entries.sort((a, b) => b.date - a.date);
+
+  if (entries.length === 0) {
+    content.innerHTML = '<div style="text-align:center;color:#bbb;padding:30px;font-size:14px;font-weight:600;">Ingen løste opgaver de seneste 30 dage</div>';
+  } else {
+    entries.forEach(({ task, who, date }) => {
+      const member = MEMBERS.find(m => m.name === who);
+      const dateLabel = date.getDate() + '. ' + MONTHS_SHORT[date.getMonth()];
+      const row = document.createElement('div');
+      row.className = 'solved-row';
+      row.innerHTML = `
+        <div class="solved-emoji">${task.emoji}</div>
+        <div class="solved-info">
+          <div class="solved-name">${task.name}</div>
+          <div class="solved-meta">${member ? member.emoji : ''} ${who} · ${dateLabel}</div>
+        </div>
+      `;
+      content.appendChild(row);
+    });
+  }
+
+  document.getElementById('solvedOverlay').classList.add('open');
+}
+function closeSolved() {
+  document.getElementById('solvedOverlay').classList.remove('open');
+}
+
 </script>
 
   <div class="edit-modal-overlay" id="editModalOverlay">
@@ -1971,5 +2242,26 @@ function closeUpcoming() {
       </div>
     </div>
   </div>
+<!-- Who-picker overlay -->
+<div class="who-overlay" id="whoOverlay" onclick="if(event.target===this)closeWhoPicker()">
+  <div class="who-sheet">
+    <div class="who-title">Hvem er du?</div>
+    <div class="who-sub" id="whoPickerTaskName"></div>
+    <div class="who-options" id="whoOptions"></div>
+    <button class="who-cancel" onclick="closeWhoPicker()">Annuller</button>
+  </div>
+</div>
+
+<!-- Løste opgaver overlay -->
+<div class="upcoming-overlay" id="solvedOverlay" onclick="if(event.target===this)closeSolved()">
+  <div class="upcoming-sheet">
+    <div class="upcoming-header">
+      <div class="upcoming-title">🏆 Løste opgaver</div>
+      <button class="upcoming-close" onclick="closeSolved()">✕</button>
+    </div>
+    <div id="solvedContent"></div>
+  </div>
+</div>
+
 </body>
 </html>
