@@ -865,6 +865,26 @@
     background: #F9F9F9;
     border-radius: 10px;
     margin-bottom: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .upcoming-task-row.done { opacity: 0.5; }
+  .upcoming-task-row.done .upcoming-task-name { text-decoration: line-through; color: #aaa; }
+  .upcoming-check {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid #CCC;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+    background: transparent;
+    color: transparent;
+  }
+  .upcoming-task-row.done .upcoming-check {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: white;
   }
   .upcoming-task-emoji { font-size: 20px; flex-shrink: 0; }
   .upcoming-task-name { font-family: var(--font-main); font-size: 14px; font-weight: 700; color: #333; flex: 1; }
@@ -1819,6 +1839,11 @@ function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
 function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
 
 function openUpcoming() {
+  renderUpcoming();
+  document.getElementById('upcomingOverlay').classList.add('open');
+}
+
+function renderUpcoming() {
   const content = document.getElementById('upcomingContent');
   content.innerHTML = '';
   const today = new Date();
@@ -1845,13 +1870,47 @@ function openUpcoming() {
     group.appendChild(label);
 
     tasks.sort((a, b) => a.name.localeCompare(b.name, 'da')).forEach(task => {
+      // Completion: kun mulig for dags dato, pr. assignee
+      // Viser samlet done hvis alle assignees har afkrydset, ellers vis som ikke-done
+      // For simplicity: toggle for currentUser hvis sat, ellers første assignee
+      const user = currentUser || task.assignees[0];
+      const compKey = `${user}_${dateStr}`;
+      const isDone = !!(task.completions && task.completions[compKey]);
+
       const row = document.createElement('div');
-      row.className = 'upcoming-task-row';
+      row.className = 'upcoming-task-row' + (isDone ? ' done' : '');
       row.innerHTML = `
+        <div class="upcoming-check">${isDone ? '✓' : ''}</div>
         <div class="upcoming-task-emoji">${task.emoji}</div>
         <div class="upcoming-task-name">${task.name}</div>
         <div class="upcoming-task-who">${task.assignees.join(', ')}</div>
       `;
+
+      row.onclick = async () => {
+        if (!task.completions) task.completions = {};
+        task.completions[compKey] = !task.completions[compKey];
+        // Opdater row in-place
+        const done = task.completions[compKey];
+        row.classList.toggle('done', done);
+        row.querySelector('.upcoming-check').textContent = done ? '✓' : '';
+        // Opdater progress hvis det er i dag
+        if (isToday) {
+          updateProgress();
+          renderDashboard();
+          // Opdater også opgavekortet hvis det er åbent
+          const card = document.querySelector(`[data-task-id="${task.id}"]`);
+          if (card) {
+            const member = MEMBERS.find(m => m.name === user);
+            const color = member ? member.color : '#FF6B6B';
+            card.classList.toggle('done', done);
+            card.style.borderLeftColor = done ? '#CCC' : color;
+            const check = card.querySelector('.task-check');
+            if (check) { check.style.color = done ? 'transparent' : color; check.textContent = done ? '✓' : ''; }
+          }
+        }
+        await saveToCloud();
+      };
+
       group.appendChild(row);
     });
 
@@ -1861,8 +1920,6 @@ function openUpcoming() {
   if (content.innerHTML === '') {
     content.innerHTML = '<div style="text-align:center;color:#bbb;padding:30px;font-size:14px;font-weight:600;">Ingen kommende opgaver 🎉</div>';
   }
-
-  document.getElementById('upcomingOverlay').classList.add('open');
 }
 
 function closeUpcoming() {
