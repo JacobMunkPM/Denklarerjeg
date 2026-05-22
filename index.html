@@ -881,7 +881,8 @@
 
   <div class="screen" id="screen-tasks">
     <div style="height:16px"></div>
-    <div class="tasks-header">
+    <div class="tasks-header" style="position:relative;">
+      <button onclick="showScreen('dashboard')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
       <div class="tasks-welcome" id="tasksWelcome">Vælg dit navn ☝️</div>
       <div class="progress-section">
         <div class="progress-header">
