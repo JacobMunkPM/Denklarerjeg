@@ -28,3 +28,1671 @@
     --font-main: 'Baloo 2', cursive;
     --font-body: 'Nunito', sans-serif;
   }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(180deg, #87CEEB 0%, #B8E4F9 40%, #D4F1C0 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .sky-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    opacity: 0.85;
+    animation: floatCloud linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+  .cloud-1 { width: 120px; height: 40px; top: 8%; animation-duration: 35s; animation-delay: -10s; }
+  .cloud-1::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+  .cloud-1::after { width: 45px; height: 45px; top: -20px; left: 50px; }
+  .cloud-2 { width: 90px; height: 30px; top: 18%; animation-duration: 50s; animation-delay: -25s; opacity: 0.7; }
+  .cloud-2::before { width: 45px; height: 45px; top: -22px; left: 10px; }
+  .cloud-2::after { width: 35px; height: 35px; top: -15px; left: 38px; }
+  .cloud-3 { width: 150px; height: 45px; top: 5%; animation-duration: 42s; animation-delay: -5s; }
+  .cloud-3::before { width: 70px; height: 70px; top: -35px; left: 20px; }
+  .cloud-3::after { width: 55px; height: 55px; top: -28px; left: 65px; }
+
+  @keyframes floatCloud {
+    from { transform: translateX(-200px); }
+    to { transform: translateX(calc(100vw + 200px)); }
+  }
+
+  .bird-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bird {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    animation: flyBird linear infinite;
+  }
+
+  @keyframes flyBird {
+    0% { transform: translateX(-60px) translateY(0px); opacity: 0; }
+    5% { opacity: 1; }
+    45% { transform: translateX(45vw) translateY(-30px); }
+    55% { transform: translateX(55vw) translateY(-20px); }
+    95% { opacity: 1; }
+    100% { transform: translateX(calc(100vw + 60px)) translateY(10px); opacity: 0; }
+  }
+
+
+  @keyframes flapWing {
+    0%   { transform: rotate(-30deg); }
+    50%  { transform: rotate(30deg); }
+    100% { transform: rotate(-30deg); }
+  }
+  .wing { animation: flapWing 0.5s ease-in-out infinite; }
+  .bird-1 { top: 12%; animation-duration: 18s; animation-delay: 0s; }
+  .bird-2 { top: 22%; animation-duration: 24s; animation-delay: -8s; }
+  .bird-3 { top: 7%; animation-duration: 20s; animation-delay: -14s; }
+  .bird-4 { top: 30%; animation-duration: 16s; animation-delay: -4s; }
+
+  #app {
+    position: relative;
+    z-index: 10;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  .app-header {
+    background: linear-gradient(135deg, var(--coral) 0%, var(--orange) 100%);
+    padding: 16px 20px 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 8px;
+    z-index: 100;
+    margin: 8px 12px 0;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .app-title {
+    font-family: var(--font-main);
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  .user-picker {
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 6px 14px 6px 10px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 28px;
+    min-width: 120px;
+    transition: background 0.2s;
+  }
+  .user-picker:focus { outline: none; background-color: rgba(255,255,255,0.35); }
+  .user-picker option { color: #333; background: white; }
+
+  .header-date {
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 3px;
+    margin-top: 10px;
+    gap: 2px;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 7px 4px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .nav-tab.active {
+    background: white;
+    color: var(--coral);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .screen { display: none; padding: 16px; }
+  #screen-admin { position: relative; }
+  .screen.active { display: block; }
+
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .dashboard-title {
+    font-family: var(--font-main);
+    font-size: 26px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 2px 3px 0 rgba(0,0,0,0.15);
+  }
+
+  .family-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .family-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 16px 14px 14px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+  .family-card:active { transform: scale(0.97); }
+  .family-card-star {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 22px;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .family-card.complete .family-card-star {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .family-card-emoji { font-size: 36px; margin-bottom: 6px; display: block; }
+  .family-card-name {
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .family-card-age { display: none; }
+
+  .mini-progress-track {
+    height: 10px;
+    background: #F0F0F0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 8px 0 6px;
+  }
+  .mini-progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .mini-progress-label { font-size: 12px; font-weight: 800; color: #555; }
+
+  .tasks-header {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+
+  .tasks-welcome {
+    font-family: var(--font-main);
+    font-size: 20px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .tasks-welcome span { color: var(--coral); }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-label { font-size: 13px; font-weight: 700; color: #666; }
+  .progress-pct {
+    font-family: var(--font-main);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--grass-dark);
+  }
+
+  .progress-track {
+    height: 22px;
+    background: #EEE;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, var(--grass) 0%, var(--mint) 100%);
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer { to { left: 200%; } }
+
+  .progress-stars {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    justify-content: center;
+  }
+  .progress-star {
+    font-size: 16px;
+    opacity: 0.25;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .progress-star.lit {
+    opacity: 1;
+    transform: scale(1.2);
+    animation: starPop 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes starPop { from { transform: scale(0); } to { transform: scale(1.2); } }
+
+  .task-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .task-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+    border-left: 5px solid transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .task-card:active { transform: scale(0.98); }
+  .task-card.done { opacity: 0.6; background: rgba(255,255,255,0.7); }
+  .task-card.done .task-name { text-decoration: line-through; color: #aaa; }
+
+  .task-check {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    background: transparent;
+  }
+  .task-card.done .task-check { background: var(--grass); border-color: var(--grass); color: white; }
+
+  .task-info { flex: 1; min-width: 0; }
+  .task-name {
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 2px;
+    transition: all 0.3s;
+  }
+  .task-meta { font-size: 11px; color: #aaa; font-weight: 600; }
+  .task-emoji { font-size: 24px; flex-shrink: 0; }
+
+  .no-tasks {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+  .no-tasks-emoji { font-size: 56px; margin-bottom: 12px; }
+  .no-tasks-text { font-family: var(--font-main); font-size: 18px; font-weight: 700; color: #666; }
+  .no-tasks-sub { font-size: 13px; color: #aaa; margin-top: 6px; }
+
+  #celebration {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #celebration.show { display: flex; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .celebration-card {
+    background: white;
+    border-radius: 32px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 320px;
+    width: 90%;
+    animation: celebPop 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes celebPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .thumbs-up {
+    font-size: 80px;
+    display: block;
+    animation: thumbPulse 0.6s cubic-bezier(.34,1.56,.64,1) 0.3s both;
+  }
+  @keyframes thumbPulse { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0deg); } }
+
+  .celebration-title {
+    font-family: var(--font-main);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--coral);
+    margin: 16px 0 8px;
+  }
+  .celebration-sub { font-size: 15px; color: #777; font-weight: 600; margin-bottom: 24px; }
+  .celebration-close {
+    background: linear-gradient(135deg, var(--coral), var(--orange));
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 32px;
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,107,107,0.4);
+    transition: transform 0.15s;
+  }
+  .celebration-close:active { transform: scale(0.97); }
+
+  .admin-lock {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-top: 20px;
+  }
+  .lock-emoji { font-size: 56px; margin-bottom: 16px; display: block; }
+  .admin-lock h2 { font-family: var(--font-main); font-size: 22px; font-weight: 800; color: #333; margin-bottom: 8px; }
+  .admin-lock p { font-size: 14px; color: #888; margin-bottom: 20px; }
+
+  .pin-input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .pin-digit {
+    width: 52px;
+    height: 60px;
+    border: 3px solid #DDD;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-main);
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    color: #333;
+    transition: border-color 0.2s;
+    -webkit-text-security: disc;
+    background: white;
+  }
+  .pin-digit:focus { outline: none; border-color: var(--coral); }
+  .pin-digit.error { border-color: var(--coral); animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--coral), var(--orange));
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 13px 32px;
+    font-family: var(--font-main);
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,107,107,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s;
+    font-family: var(--font-body);
+  }
+  .btn-danger:active { transform: scale(0.97); }
+
+  .admin-section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+  .admin-section h3 {
+    font-family: var(--font-main);
+    font-size: 18px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #EEE;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: #333;
+    background: white;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { outline: none; border-color: var(--coral); }
+
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .checkbox-chip {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid #EEE;
+    background: white;
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .checkbox-chip.selected { border-color: var(--coral); background: var(--coral); color: white; }
+
+  .day-chip-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .day-chip {
+    padding: 8px 4px;
+    border-radius: 10px;
+    border: 2px solid #EEE;
+    background: white;
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .day-chip.selected { border-color: var(--sky-deep); background: var(--sky-deep); color: white; }
+
+  .recurrence-tabs { display: flex; background: #F5F5F5; border-radius: 12px; padding: 3px; gap: 3px; }
+  .recurrence-tab {
+    flex: 1;
+    padding: 9px 4px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+  }
+  .recurrence-tab.active { background: white; color: var(--coral); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+
+  .freq-options { display: none; margin-top: 10px; }
+  .freq-options.show { display: block; }
+
+  .admin-task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F0F0F0;
+  }
+  .admin-task-item:last-child { border-bottom: none; }
+  .admin-task-emoji { font-size: 22px; flex-shrink: 0; }
+  .admin-task-info { flex: 1; min-width: 0; }
+  .admin-task-name { font-family: var(--font-main); font-size: 15px; font-weight: 700; color: #333; }
+  .admin-task-detail { font-size: 11px; color: #aaa; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .empty-state { text-align: center; padding: 30px; color: #bbb; font-size: 14px; font-weight: 600; }
+
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    justify-content: flex-end;
+  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grass); flex-shrink: 0; }
+  .sync-dot.syncing { animation: pulse 1s infinite; background: var(--sun); }
+  .sync-dot.error { background: var(--coral); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  #toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 500;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; }
+  .emoji-opt {
+    font-size: 22px;
+    text-align: center;
+    padding: 5px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .emoji-opt:hover, .emoji-opt.selected { background: #FFF0EE; border-color: var(--coral); }
+
+  .logout-admin {
+    background: none;
+    border: 2px solid #DDD;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #999;
+    cursor: pointer;
+    font-family: var(--font-body);
+    margin-top: 4px;
+    transition: all 0.2s;
+  }
+  .logout-admin:active { background: #F5F5F5; }
+
+  .edit-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .edit-modal-overlay.open { display: flex; }
+  .edit-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .edit-modal h3 { font-family: var(--font-main); font-size: 18px; margin: 0 0 16px; color: #333; }
+  .edit-modal-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; margin: 8px 0 16px; }
+  .edit-modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .edit-modal-actions button { flex: 1; }
+
+  /* ── Calendar ── */
+  .cal-section { margin-bottom: 16px; }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .cal-month-title { font-family: var(--font-main); font-size: 16px; font-weight: 700; color: #333; }
+  .cal-nav-btn { background: rgba(0,0,0,0.06); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #666; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day-label { font-size: 10px; font-weight: 700; color: #aaa; text-align: center; padding: 4px 0; }
+  .cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; border-radius: 8px; cursor: pointer; position: relative; gap: 2px; transition: background 0.15s; }
+  .cal-cell:hover { background: rgba(0,0,0,0.05); }
+  .cal-cell.other-month .cal-num { color: #ccc; }
+  .cal-cell.today { background: #FFF3E0; }
+  .cal-cell.today .cal-num { color: var(--coral); font-weight: 700; }
+  .cal-cell.selected { background: var(--coral); }
+  .cal-cell.selected .cal-num { color: white; font-weight: 700; }
+  .cal-num { font-size: 11px; color: #555; line-height: 1; }
+  .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; max-width: 22px; }
+  .cal-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+  .cal-day-detail { margin-top: 12px; background: #F9F9F9; border-radius: 12px; padding: 12px; min-height: 60px; }
+  .cal-day-detail-title { font-size: 12px; font-weight: 700; color: #888; margin-bottom: 8px; }
+  .cal-task-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #F0F0F0; }
+  .cal-task-row:last-child { border-bottom: none; }
+  .cal-task-emoji { font-size: 18px; width: 24px; text-align: center; }
+  .cal-task-info { flex: 1; }
+  .cal-task-name { font-size: 13px; font-weight: 700; color: #333; }
+  .cal-task-who { font-size: 11px; color: #aaa; }
+  .cal-empty { text-align: center; color: #ccc; font-size: 13px; padding: 8px; }
+  /* member dot colors */
+  .dot-Marley { background: #C77DFF; }
+  .dot-Aleksander { background: #FF9F43; }
+  .dot-Oliver { background: #6BCB77; }
+  .dot-Jacob { background: #4BA3D3; }
+  .dot-Maria { background: #FF6B6B; }
+  /* ── One-time recurrence ── */
+  .onetime-date-picker { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="sky-bg">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+</div>
+
+<div class="bird-container">
+  <div class="bird bird-1">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <ellipse cx="38" cy="30" rx="16" ry="10" fill="#FF9F43"/>
+      <!-- Tail -->
+      <polygon points="22,28 10,22 10,38" fill="#FF9F43"/>
+      <!-- Head -->
+      <circle cx="52" cy="22" r="9" fill="#FF9F43"/>
+      <!-- Beak -->
+      <polygon points="61,20 72,22 61,24" fill="#FFD93D"/>
+      <!-- Eye -->
+      <circle cx="55" cy="20" r="2" fill="#222"/>
+      <circle cx="56" cy="19" r="0.8" fill="white"/>
+      <!-- Wing: rotates from body attachment point -->
+      <g class="wing" style="transform-origin: 42px 24px;">
+        <ellipse cx="32" cy="20" rx="16" ry="6" fill="#FF6B6B" transform="rotate(-10,32,20)"/>
+        <ellipse cx="20" cy="16" rx="8" ry="3.5" fill="#FF6B6B" transform="rotate(-20,20,16)"/>
+      </g>
+    </svg>
+  </div>
+  <div class="bird bird-2">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <ellipse cx="38" cy="30" rx="16" ry="10" fill="#C77DFF"/>
+      <!-- Tail -->
+      <polygon points="22,28 10,22 10,38" fill="#C77DFF"/>
+      <!-- Head -->
+      <circle cx="52" cy="22" r="9" fill="#C77DFF"/>
+      <!-- Beak -->
+      <polygon points="61,20 72,22 61,24" fill="#FFD93D"/>
+      <!-- Eye -->
+      <circle cx="55" cy="20" r="2" fill="#222"/>
+      <circle cx="56" cy="19" r="0.8" fill="white"/>
+      <!-- Wing: rotates from body attachment point -->
+      <g class="wing" style="transform-origin: 42px 24px;">
+        <ellipse cx="32" cy="20" rx="16" ry="6" fill="#9B59B6" transform="rotate(-10,32,20)"/>
+        <ellipse cx="20" cy="16" rx="8" ry="3.5" fill="#9B59B6" transform="rotate(-20,20,16)"/>
+      </g>
+    </svg>
+  </div>
+  <div class="bird bird-3">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <ellipse cx="38" cy="30" rx="16" ry="10" fill="#4ECDC4"/>
+      <!-- Tail -->
+      <polygon points="22,28 10,22 10,38" fill="#4ECDC4"/>
+      <!-- Head -->
+      <circle cx="52" cy="22" r="9" fill="#4ECDC4"/>
+      <!-- Beak -->
+      <polygon points="61,20 72,22 61,24" fill="#FFD93D"/>
+      <!-- Eye -->
+      <circle cx="55" cy="20" r="2" fill="#222"/>
+      <circle cx="56" cy="19" r="0.8" fill="white"/>
+      <!-- Wing: rotates from body attachment point -->
+      <g class="wing" style="transform-origin: 42px 24px;">
+        <ellipse cx="32" cy="20" rx="16" ry="6" fill="#2EAF9C" transform="rotate(-10,32,20)"/>
+        <ellipse cx="20" cy="16" rx="8" ry="3.5" fill="#2EAF9C" transform="rotate(-20,20,16)"/>
+      </g>
+    </svg>
+  </div>
+  <div class="bird bird-4">
+    <svg viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body -->
+      <ellipse cx="38" cy="30" rx="16" ry="10" fill="#6BCB77"/>
+      <!-- Tail -->
+      <polygon points="22,28 10,22 10,38" fill="#6BCB77"/>
+      <!-- Head -->
+      <circle cx="52" cy="22" r="9" fill="#6BCB77"/>
+      <!-- Beak -->
+      <polygon points="61,20 72,22 61,24" fill="#FFD93D"/>
+      <!-- Eye -->
+      <circle cx="55" cy="20" r="2" fill="#222"/>
+      <circle cx="56" cy="19" r="0.8" fill="white"/>
+      <!-- Wing: rotates from body attachment point -->
+      <g class="wing" style="transform-origin: 42px 24px;">
+        <ellipse cx="32" cy="20" rx="16" ry="6" fill="#4DA85A" transform="rotate(-10,32,20)"/>
+        <ellipse cx="20" cy="16" rx="8" ry="3.5" fill="#4DA85A" transform="rotate(-20,20,16)"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<div id="app">
+  <div class="app-header">
+    <div class="header-top">
+      <div class="app-title" onclick="showScreen('dashboard')" style="cursor:pointer;">🐦 Den klarer jeg!</div>
+      <button onclick="showScreen('admin')" title="Admin" style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.6);border-radius:50%;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform 0.15s,background 0.2s;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4.5" fill="white"/>
+          <path d="M3 21c0-4.418 4.029-8 9-8s9 3.582 9 8" fill="white"/>
+        </svg>
+      </button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="header-date" id="headerDate"></div>
+      <div class="sync-bar" style="padding:0;">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">Forbinder...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen active" id="screen-dashboard">
+    <div class="family-cards" id="familyCards"></div>
+  </div>
+
+  <div class="screen" id="screen-tasks">
+    <div style="height:16px"></div>
+    <div class="tasks-header">
+      <div class="tasks-welcome" id="tasksWelcome">Vælg dit navn ☝️</div>
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">Dagens fremgang</span>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="progress-stars" id="progressStars"></div>
+      </div>
+    </div>
+    <div id="taskList" class="task-list"></div>
+  </div>
+
+  <div class="screen" id="screen-admin">
+    <div style="height:16px"></div>
+    <div id="adminLock" class="admin-lock" style="position:relative;">
+      <button onclick="showScreen('dashboard')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
+      <span class="lock-emoji">🔒</span>
+      <h2>Admin-panel</h2>
+      <p>Skriv PIN-koden for at logge ind</p>
+      <div class="pin-input-row">
+        <input class="pin-digit" type="password" maxlength="1" id="pin0" inputmode="numeric" oninput="pinInput(0)">
+        <input class="pin-digit" type="password" maxlength="1" id="pin1" inputmode="numeric" oninput="pinInput(1)">
+        <input class="pin-digit" type="password" maxlength="1" id="pin2" inputmode="numeric" oninput="pinInput(2)">
+        <input class="pin-digit" type="password" maxlength="1" id="pin3" inputmode="numeric" oninput="pinInput(3)">
+      </div>
+      <button class="btn-primary" onclick="checkPin()">🔓 Log ind</button>
+    </div>
+
+    <div id="adminContent" style="display:none;">
+      <div class="admin-section" style="position:relative;">
+        <button onclick="showScreen('dashboard')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;z-index:10;">✕</button>
+        <h3>➕ Opret ny opgave</h3>
+        <div class="form-group">
+          <label class="form-label">Opgavenavn</label>
+          <input class="form-input" id="taskName" placeholder="fx Ryd opvaskemaskinen..." type="text">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vælg ikon</label>
+          <div class="emoji-grid" id="emojiGrid"></div>
+          <input type="hidden" id="selectedEmoji" value="⭐">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tildel til</label>
+          <div class="checkbox-group" id="assignees"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gentagelse</label>
+          <div class="recurrence-tabs">
+            <button class="recurrence-tab active" onclick="setRecurrence('daily')" id="recDaily">Daglig</button>
+            <button class="recurrence-tab" onclick="setRecurrence('weekly')" id="recWeekly">Ugentlig</button>
+            <button class="recurrence-tab" onclick="setRecurrence('monthly')" id="recMonthly">Månedlig</button>
+            <button class="recurrence-tab" onclick="setRecurrence('onetime')" id="recOnetime">Engangs</button>
+          </div>
+          <div class="freq-options show" id="freqDaily">
+            <label class="form-label" style="margin-top:10px">Dage</label>
+            <div class="day-chip-group" id="dailyDays"></div>
+          </div>
+          <div class="freq-options" id="freqWeekly">
+            <label class="form-label" style="margin-top:10px">Ugedag(e)</label>
+            <div class="day-chip-group" id="weeklyDays"></div>
+          </div>
+          <div class="freq-options" id="freqMonthly">
+            <label class="form-label" style="margin-top:10px">Dag i måneden</label>
+            <input class="form-input" id="monthlyDay" type="number" min="1" max="31" placeholder="fx 1">
+          </div>
+          <div class="freq-options onetime-date-picker" id="freqOnetime">
+            <label class="form-label" style="margin-top:10px">Dato</label>
+            <input class="form-input" id="onetimeDate" type="date">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="createTask()">🐦 Tilføj opgave</button>
+      </div>
+
+      <div class="admin-section cal-section">
+        <h3>📅 Kalender</h3>
+        <div class="cal-header">
+          <button class="cal-nav-btn" onclick="calPrev()">&#8249;</button>
+          <div class="cal-month-title" id="calMonthTitle"></div>
+          <button class="cal-nav-btn" onclick="calNext()">&#8250;</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-day-detail" id="calDayDetail"><div class="cal-empty">Vælg en dag</div></div>
+      </div>
+      <div class="admin-section">
+        <h3>📋 Alle opgaver</h3>
+        <div id="adminTaskList"></div>
+      </div>
+
+      <button class="logout-admin" onclick="logoutAdmin()">🔒 Log ud af admin</button>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+</div>
+
+<div id="celebration">
+  <canvas id="fireworkCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:998"></canvas>
+  <div class="celebration-card">
+    <span class="thumbs-up">👍</span>
+    <div class="celebration-title" id="celebName">Wuhuu!</div>
+    <div class="celebration-sub">Du har klaret ALLE dine opgaver i dag! 🎉🎊✨</div>
+    <button class="celebration-close" onclick="closeCelebration()">Tak, det vidste jeg godt! 😎</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API_BASE = '/api';
+const SHARED_CODE = 'denklarerjeg';
+const POLL_INTERVAL = 30000;
+const PIN = '6362';
+
+const MEMBERS = [
+  { name: 'Marley', emoji: '👧', age: 7, color: '#C77DFF' },
+  { name: 'Aleksander', emoji: '👦', age: 11, color: '#FF9F43' },
+  { name: 'Oliver', emoji: '👦', age: 12, color: '#6BCB77' },
+  { name: 'Jacob', emoji: '🧑‍🦱', age: 44, color: '#4BA3D3' },
+  { name: 'Maria', emoji: '👩‍🦱', age: 44, color: '#FF6B6B' },
+];
+
+const EMOJIS = ['🧹','🍽️','🛒','🐕','🌿','🛏️','🧺','🪣','🚿','🍳','♻️','📦','🔧','🧻','🌸','🚗','📚','🏋️','🎒','🦷','🪥','🧴','💊','📬','🪴','🧼','🥗','🍎','🎯','⭐','🌟','💫','🎪'];
+const DAYS_DA = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+
+const PRESET_TASKS = [
+  { id: 'task_preset_1', name: 'Vask op efter aftensmad', emoji: '🍽️', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_2', name: 'Vask tøj', emoji: '🧺', assignees: ['Jacob'], recurrence: 'weekly', days: [1,3,5], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_3', name: 'Lav aftensmad', emoji: '🍳', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_4', name: 'Støvsug', emoji: '🧹', assignees: ['Jacob'], recurrence: 'weekly', days: [1,5], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_5', name: 'Tør støv af', emoji: '🧻', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_6', name: 'Ryd op på kontorbord', emoji: '📦', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_7', name: 'Rengør toilet', emoji: '🪣', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_8', name: 'Rengør håndvask og spejl på badeværelse', emoji: '🧴', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_9', name: 'Hent Bilka2Go', emoji: '🛒', assignees: ['Jacob'], recurrence: 'weekly', days: [6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_10', name: 'Bestil Bilka2Go', emoji: '🛒', assignees: ['Jacob'], recurrence: 'weekly', days: [3], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_11', name: 'Bestil Hellofresh', emoji: '🌸', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_12', name: 'Tør tørretumbler og vaskemaskine af', emoji: '🧺', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_13', name: 'Rengør opvaskemaskine', emoji: '🍽️', assignees: ['Jacob'], recurrence: 'weekly', days: [1], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_14', name: 'Bær skrald ud', emoji: '🗑️', assignees: ['Jacob'], recurrence: 'weekly', days: [0,2,4,6], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' },
+  { id: 'task_preset_15', name: 'Lav kaffe', emoji: '☕', assignees: ['Jacob'], recurrence: 'weekly', days: [0,1,2,3,4], monthDay: null, completions: {}, createdAt: '2026-05-15T00:00:00.000Z' }
+];
+
+let state = { tasks: [] };
+let currentUser = '';
+let currentScreen = 'dashboard';
+let adminUnlocked = false;
+let currentRecurrence = 'daily';
+let selectedDays = { daily: [], weekly: [], monthly: [] };
+let assigneeSelection = [];
+let celebrationShown = new Set();
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('editModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
+  setHeaderDate();
+  buildEmojiGrid();
+  buildAssignees();
+  buildDayChips();
+  buildProgressStars();
+  loadFromCloud();
+  setInterval(loadFromCloud, POLL_INTERVAL);
+});
+
+function setHeaderDate() {
+  const now = new Date();
+  const opts = { weekday:'long', day:'numeric', month:'long' };
+  const str = now.toLocaleDateString('da-DK', opts);
+  document.getElementById('headerDate').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function showScreen(name) {
+  currentScreen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'tasks') renderTasks();
+  if (name === 'admin') { renderAdminTaskList(); if (typeof renderCalendar === 'function') renderCalendar(); }
+}
+
+function onUserChange() {
+  if (currentScreen === 'tasks') renderTasks();
+  if (currentScreen === 'dashboard') renderDashboard();
+}
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function todayDayIndex() { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; }
+function todayMonthDay() { return new Date().getDate(); }
+
+function taskIsToday(task) {
+  if (task.recurrence === 'daily') {
+    if (!task.days || task.days.length === 0) return true;
+    return task.days.includes(todayDayIndex());
+  }
+  if (task.recurrence === 'weekly') {
+    if (!task.days || task.days.length === 0) return false;
+    return task.days.includes(todayDayIndex());
+  }
+  if (task.recurrence === 'monthly') return task.monthDay === todayMonthDay();
+  return false;
+}
+
+function completionKey(userId) { return `${userId}_${todayStr()}`; }
+function isCompleted(task, user) { return !!(task.completions && task.completions[completionKey(user)]); }
+
+function renderDashboard() {
+  const container = document.getElementById('familyCards');
+  container.innerHTML = '';
+  MEMBERS.forEach(member => {
+    const tasks = state.tasks.filter(t => t.assignees.includes(member.name) && taskIsToday(t));
+    const done = tasks.filter(t => isCompleted(t, member.name)).length;
+    const total = tasks.length;
+    const pct = total === 0 ? 100 : Math.round((done / total) * 100);
+    const card = document.createElement('div');
+    card.className = `family-card${pct === 100 && total > 0 ? ' complete' : ''}`;
+    card.style.borderTop = `5px solid ${member.color}`;
+    card.onclick = () => {
+      currentUser = member.name;
+      showScreen('tasks');
+      renderTasks();
+    };
+    card.innerHTML = `
+      <div class="family-card-star">⭐</div>
+      <span class="family-card-emoji">${member.emoji}</span>
+      <div class="family-card-name">${member.name}</div>
+      <div class="family-card-age">${member.age} år</div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill" style="width:${pct}%;background:${member.color}"></div>
+      </div>
+      <div class="mini-progress-label" style="color:${member.color}">${done}/${total} · ${pct}%</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function buildProgressStars() {
+  const container = document.getElementById('progressStars');
+  container.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement('span');
+    s.className = 'progress-star';
+    s.textContent = '⭐';
+    s.id = `star-${i}`;
+    container.appendChild(s);
+  }
+}
+
+function renderTasks() {
+  if (!currentUser) {
+    document.getElementById('tasksWelcome').innerHTML = 'Vælg dit navn ☝️';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('taskList').innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">👆</div><div class="no-tasks-text">Hvem er du?</div><div class="no-tasks-sub">Vælg dit navn øverst til højre</div></div>`;
+    return;
+  }
+  const member = MEMBERS.find(m => m.name === currentUser);
+  document.getElementById('tasksWelcome').innerHTML = `Hej <span>${currentUser}</span> ${member ? member.emoji : ''}!`;
+  const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
+  const done = tasks.filter(t => isCompleted(t, currentUser)).length;
+  const total = tasks.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  const lit = Math.floor(pct / 20);
+  for (let i = 0; i < 5; i++) {
+    const s = document.getElementById(`star-${i}`);
+    if (s) s.classList.toggle('lit', i < lit);
+  }
+  if (total > 0 && pct === 100) {
+    const key = currentUser + '_' + todayStr();
+    if (!celebrationShown.has(key)) {
+      celebrationShown.add(key);
+      setTimeout(() => showCelebration(), 400);
+    }
+  }
+  const container = document.getElementById('taskList');
+  container.innerHTML = '';
+  if (tasks.length === 0) {
+    container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">🐦</div><div class="no-tasks-text">Ingen opgaver i dag!</div><div class="no-tasks-sub">Du har fri — nyd det!</div></div>`;
+    return;
+  }
+  const sorted = [...tasks].sort((a, b) => (isCompleted(a, currentUser) ? 1 : 0) - (isCompleted(b, currentUser) ? 1 : 0));
+  sorted.forEach(task => {
+    const isDone = isCompleted(task, currentUser);
+    const color = member ? member.color : '#FF6B6B';
+    const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
+    const card = document.createElement('div');
+    card.className = `task-card ${isDone ? 'done' : ''}`;
+    card.style.borderLeftColor = isDone ? '#CCC' : color;
+    card.innerHTML = `
+      <div class="task-check" style="color:${isDone ? 'transparent' : color}">${isDone ? '✓' : ''}</div>
+      <div class="task-info"><div class="task-name">${task.name}</div><div class="task-meta">${recLabel}</div></div>
+      <div class="task-emoji">${task.emoji}</div>
+    `;
+    card.onclick = () => toggleTask(task.id);
+    container.appendChild(card);
+  });
+}
+
+async function toggleTask(taskId) {
+  if (!currentUser) return;
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const key = completionKey(currentUser);
+  if (!task.completions) task.completions = {};
+  task.completions[key] = !task.completions[key];
+  renderTasks();
+  renderDashboard();
+  await saveToCloud();
+}
+
+function showCelebration() {
+  document.getElementById('celebName').textContent = `Wuhuu, ${currentUser}!`;
+  document.getElementById('celebration').classList.add('show');
+  launchFireworks();
+}
+
+function closeCelebration() {
+  document.getElementById('celebration').classList.remove('show');
+  const canvas = document.getElementById('fireworkCanvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function launchFireworks() {
+  const canvas = document.getElementById('fireworkCanvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4BA3D3','#C77DFF','#FF9F43'];
+  const particles = [];
+  for (let b = 0; b < 6; b++) {
+    const bx = Math.random() * canvas.width;
+    const by = Math.random() * canvas.height * 0.6;
+    for (let i = 0; i < 30; i++) {
+      const angle = (Math.PI * 2 * i) / 30;
+      const speed = 2 + Math.random() * 5;
+      particles.push({ x: bx, y: by, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, color: colors[Math.floor(Math.random()*colors.length)], alpha: 1, size: 4+Math.random()*4 });
+    }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.vx *= 0.98; p.alpha -= 0.018;
+      if (p.alpha <= 0) return;
+      ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+    });
+    if (particles.some(p => p.alpha > 0)) requestAnimationFrame(draw);
+  }
+  ctx.globalAlpha = 1;
+  draw();
+}
+
+function pinInput(idx) {
+  const val = document.getElementById(`pin${idx}`).value;
+  if (val.length === 1 && idx < 3) document.getElementById(`pin${idx+1}`).focus();
+  if (idx === 3 && val.length === 1) setTimeout(checkPin, 100);
+}
+
+function checkPin() {
+  const pin = ['pin0','pin1','pin2','pin3'].map(id => document.getElementById(id).value).join('');
+  if (pin === PIN) {
+    adminUnlocked = true;
+    document.getElementById('adminLock').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderAdminTaskList();
+    renderCalendar();
+  } else {
+    ['pin0','pin1','pin2','pin3'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add('error'); el.value = '';
+      setTimeout(() => el.classList.remove('error'), 600);
+    });
+    document.getElementById('pin0').focus();
+    showToast('Forkert PIN-kode! 🔒');
+  }
+}
+
+function logoutAdmin() {
+  adminUnlocked = false;
+  document.getElementById('adminLock').style.display = 'block';
+  document.getElementById('adminContent').style.display = 'none';
+  ['pin0','pin1','pin2','pin3'].forEach(id => document.getElementById(id).value = '');
+}
+
+function buildEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  EMOJIS.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'emoji-opt' + (i === 0 ? ' selected' : '');
+    div.textContent = e;
+    div.onclick = () => {
+      document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('selectedEmoji').value = e;
+    };
+    grid.appendChild(div);
+  });
+  document.getElementById('selectedEmoji').value = EMOJIS[0];
+}
+
+function buildAssignees() {
+  const container = document.getElementById('assignees');
+  MEMBERS.forEach(m => {
+    const chip = document.createElement('div');
+    chip.className = 'checkbox-chip';
+    chip.textContent = `${m.emoji} ${m.name}`;
+    chip.dataset.name = m.name;
+    chip.onclick = () => {
+      chip.classList.toggle('selected');
+      if (chip.classList.contains('selected')) assigneeSelection.push(m.name);
+      else assigneeSelection = assigneeSelection.filter(n => n !== m.name);
+    };
+    container.appendChild(chip);
+  });
+}
+
+function buildDayChips() {
+  const daily = document.getElementById('dailyDays');
+  const weekly = document.getElementById('weeklyDays');
+  DAYS_DA.forEach((d, i) => {
+    const dc = document.createElement('div');
+    dc.className = 'day-chip'; dc.textContent = d; dc.dataset.idx = i;
+    dc.onclick = () => toggleDay('daily', i, dc);
+    daily.appendChild(dc);
+    const wc = document.createElement('div');
+    wc.className = 'day-chip'; wc.textContent = d; wc.dataset.idx = i;
+    wc.onclick = () => toggleDay('weekly', i, wc);
+    weekly.appendChild(wc);
+  });
+}
+
+function toggleDay(type, idx, el) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) selectedDays[type].push(idx);
+  else selectedDays[type] = selectedDays[type].filter(d => d !== idx);
+}
+
+function setRecurrence(type) {
+  currentRecurrence = type;
+  document.querySelectorAll('#screen-admin .recurrence-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('rec' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+  document.querySelectorAll('.freq-options').forEach(o => o.classList.remove('show'));
+  document.getElementById('freq' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('show');
+}
+
+async function createTask() {
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) { showToast('Skriv et opgavenavn! ✏️'); return; }
+  if (assigneeSelection.length === 0) { showToast('Vælg mindst én person! 👤'); return; }
+  const emoji = document.getElementById('selectedEmoji').value;
+  const rec = currentRecurrence;
+  let days = [], monthDay = null;
+  if (rec === 'daily') days = [...selectedDays.daily];
+  if (rec === 'weekly') { if (selectedDays.weekly.length === 0) { showToast('Vælg mindst én ugedag! 📅'); return; } days = [...selectedDays.weekly]; }
+  if (rec === 'monthly') { monthDay = parseInt(document.getElementById('monthlyDay').value); if (!monthDay || monthDay < 1 || monthDay > 31) { showToast('Vælg dag i måneden! 📅'); return; } }
+  let onetimeDate = null;
+  if (rec === 'onetime') { onetimeDate = document.getElementById('onetimeDate').value; if (!onetimeDate) { showToast('Vælg en dato! 📅'); return; } }
+  const task = { id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2), name, emoji, assignees: [...assigneeSelection], recurrence: rec, days, monthDay, onetimeDate, completions: {}, createdAt: new Date().toISOString() };
+  state.tasks.push(task);
+  await saveToCloud();
+  renderAdminTaskList();
+  renderDashboard();
+  showToast(`✅ "${name}" oprettet!`);
+  document.getElementById('taskName').value = '';
+  document.querySelectorAll('.checkbox-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.emoji-opt').forEach((c, i) => c.classList.toggle('selected', i === 0));
+  document.getElementById('selectedEmoji').value = EMOJIS[0];
+  assigneeSelection = [];
+  selectedDays = { daily: [], weekly: [], monthly: [] };
+  document.getElementById('onetimeDate').value = '';
+}
+
+async function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  await saveToCloud();
+  renderAdminTaskList();
+  renderDashboard();
+  showToast('🗑️ Opgave slettet');
+}
+
+function renderAdminTaskList() {
+  if (!adminUnlocked) return;
+  const container = document.getElementById('adminTaskList');
+  if (!state.tasks || state.tasks.length === 0) { container.innerHTML = '<div class="empty-state">🐦 Ingen opgaver endnu</div>'; return; }
+  container.innerHTML = '';
+  [...state.tasks].sort((a, b) => a.name.localeCompare(b.name, 'da')).forEach(task => {
+    const item = document.createElement('div');
+    item.className = 'admin-task-item';
+    const recLabel = { daily: 'Daglig', weekly: 'Ugentlig', monthly: 'Månedlig' }[task.recurrence] || '';
+    const dayInfo = task.recurrence === 'monthly' ? `Dag ${task.monthDay} i måneden` : task.days && task.days.length > 0 ? task.days.map(d => DAYS_DA[d]).join(', ') : 'Alle dage';
+    item.innerHTML = `<div class="admin-task-emoji" style="cursor:pointer;" onclick="openEditModal('${task.id}')">${task.emoji}</div><div class="admin-task-info" style="cursor:pointer;" onclick="openEditModal('${task.id}')"><div class="admin-task-name">${task.name}</div><div class="admin-task-detail">${recLabel} · ${dayInfo} · ${task.assignees.join(', ')}</div></div><button class="btn-secondary" style="padding:6px 10px;font-size:12px;" onclick="openEditModal('${task.id}')">✏️</button><button class="btn-danger" onclick="deleteTask('${task.id}')">✕</button>`;
+    container.appendChild(item);
+  });
+}
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  if (status === 'ok') { dot.className = 'sync-dot'; label.textContent = 'Synkroniseret'; }
+  else if (status === 'syncing') { dot.className = 'sync-dot syncing'; label.textContent = 'Synkroniserer...'; }
+  else { dot.className = 'sync-dot error'; label.textContent = 'Offline'; }
+}
+
+async function loadFromCloud() {
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(`${API_BASE}/getState`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.tasks) state = data;
+      const existingIds = new Set(state.tasks.map(t => t.id));
+      const newPresets = PRESET_TASKS.filter(t => !existingIds.has(t.id));
+      if (newPresets.length > 0) { state.tasks = [...state.tasks, ...newPresets]; await saveToCloud(); }
+      setSyncStatus('ok');
+    }
+    else setSyncStatus('error');
+  } catch (e) { setSyncStatus('error'); }
+  renderDashboard();
+  renderTasks();
+  if (adminUnlocked) renderAdminTaskList();
+}
+
+async function saveToCloud() {
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(`${API_BASE}/postState`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) });
+    if (res.ok) setSyncStatus('ok');
+    else { setSyncStatus('error'); showToast('⚠️ Kunne ikke gemme – prøv igen'); }
+  } catch (e) { setSyncStatus('error'); showToast('⚠️ Offline – ændringer ikke gemt'); }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+let editingTaskId = null;
+
+let editAssigneeSelection = [];
+let editSelectedDays = { daily: [], weekly: [], monthly: [] };
+let editCurrentRecurrence = 'daily';
+
+function setEditRecurrence(type) {
+  editCurrentRecurrence = type;
+  ['daily','weekly','monthly'].forEach(t => {
+    document.getElementById('editRec' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === type);
+    document.getElementById('editFreq' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('show', t === type);
+  });
+}
+
+function openEditModal(taskId) {
+  editingTaskId = taskId;
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  // Name
+  document.getElementById('editTaskName').value = task.name;
+
+  // Emoji
+  document.getElementById('editSelectedEmoji').value = task.emoji;
+  const grid = document.getElementById('editEmojiGrid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'emoji-opt' + (e === task.emoji ? ' selected' : '');
+    div.textContent = e;
+    div.onclick = () => {
+      grid.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('editSelectedEmoji').value = e;
+    };
+    grid.appendChild(div);
+  });
+
+  // Assignees
+  editAssigneeSelection = [...(task.assignees || [])];
+  const ac = document.getElementById('editAssignees');
+  ac.innerHTML = '';
+  MEMBERS.forEach(m => {
+    const chip = document.createElement('div');
+    chip.className = 'checkbox-chip' + (editAssigneeSelection.includes(m.name) ? ' selected' : '');
+    chip.textContent = m.emoji + ' ' + m.name;
+    chip.onclick = () => {
+      chip.classList.toggle('selected');
+      if (chip.classList.contains('selected')) editAssigneeSelection.push(m.name);
+      else editAssigneeSelection = editAssigneeSelection.filter(n => n !== m.name);
+    };
+    ac.appendChild(chip);
+  });
+
+  // Recurrence
+  editCurrentRecurrence = task.recurrence || 'daily';
+  editSelectedDays = { daily: [...(task.recurrence === 'daily' ? (task.days || []) : [])], weekly: [...(task.recurrence === 'weekly' ? (task.days || []) : [])], monthly: [] };
+  setEditRecurrence(editCurrentRecurrence);
+
+  // Day chips
+  ['editDailyDays','editWeeklyDays'].forEach((id, i) => {
+    const type = i === 0 ? 'daily' : 'weekly';
+    const container = document.getElementById(id);
+    container.innerHTML = '';
+    DAYS_DA.forEach((d, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'day-chip' + (editSelectedDays[type].includes(idx) ? ' selected' : '');
+      chip.textContent = d;
+      chip.onclick = () => {
+        chip.classList.toggle('selected');
+        if (chip.classList.contains('selected')) editSelectedDays[type].push(idx);
+        else editSelectedDays[type] = editSelectedDays[type].filter(x => x !== idx);
+      };
+      container.appendChild(chip);
+    });
+  });
+
+  // Monthly day
+  if (task.recurrence === 'monthly') document.getElementById('editMonthlyDay').value = task.monthDay || '';
+
+  document.getElementById('editModalOverlay').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModalOverlay').classList.remove('open');
+  editingTaskId = null;
+}
+
+async function saveEditTask() {
+  const task = state.tasks.find(t => t.id === editingTaskId);
+  if (!task) return;
+  const newName = document.getElementById('editTaskName').value.trim();
+  const newEmoji = document.getElementById('editSelectedEmoji').value;
+  if (!newName) { showToast('Skriv et opgavenavn! ✏️'); return; }
+  if (editAssigneeSelection.length === 0) { showToast('Vælg mindst én person! 👤'); return; }
+  if (editCurrentRecurrence === 'weekly' && editSelectedDays.weekly.length === 0) { showToast('Vælg mindst én ugedag! 📅'); return; }
+  task.name = newName;
+  task.emoji = newEmoji;
+  task.assignees = [...editAssigneeSelection];
+  task.recurrence = editCurrentRecurrence;
+  if (editCurrentRecurrence === 'daily') task.days = [...editSelectedDays.daily];
+  else if (editCurrentRecurrence === 'weekly') task.days = [...editSelectedDays.weekly];
+  else if (editCurrentRecurrence === 'monthly') { task.monthDay = parseInt(document.getElementById('editMonthlyDay').value); task.days = []; }
+  await saveToCloud();
+  renderAdminTaskList();
+  renderDashboard();
+  closeEditModal();
+  showToast('✅ Opgave opdateret!');
+}
+
+
+
+
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calSelectedDate = null;
+
+const MONTHS_DA = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+
+function renderCalendar() {
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay = new Date(calYear, calMonth + 1, 0);
+  // Monday-first: 0=Mon..6=Sun
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  document.getElementById('calMonthTitle').textContent = MONTHS_DA[calMonth] + ' ' + calYear;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['M','T','O','T','F','L','S'].forEach(d => {
+    const lbl = document.createElement('div');
+    lbl.className = 'cal-day-label';
+    lbl.textContent = d;
+    grid.appendChild(lbl);
+  });
+
+  // Cells from previous month
+  const prevLast = new Date(calYear, calMonth, 0).getDate();
+  for (let i = startDow - 1; i >= 0; i--) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    cell.innerHTML = '<div class="cal-num">' + (prevLast - i) + '</div>';
+    grid.appendChild(cell);
+  }
+
+  // This month
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const cell = document.createElement('div');
+    const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const isSelected = calSelectedDate === dateStr;
+    cell.className = 'cal-cell' + (isToday ? ' today' : '') + (isSelected ? ' selected' : '');
+    cell.innerHTML = '<div class="cal-num">' + d + '</div>';
+
+    // Get tasks for this day
+    const dayTasks = getTasksForDate(dateStr);
+    if (dayTasks.length > 0) {
+      const dots = document.createElement('div');
+      dots.className = 'cal-dots';
+      const seen = new Set();
+      dayTasks.forEach(t => {
+        t.assignees.forEach(a => {
+          if (!seen.has(a)) {
+            seen.add(a);
+            const dot = document.createElement('div');
+            dot.className = 'cal-dot dot-' + a;
+            dots.appendChild(dot);
+          }
+        });
+      });
+      cell.appendChild(dots);
+    }
+
+    cell.onclick = () => {
+      calSelectedDate = dateStr;
+      renderCalendar();
+      renderCalDayDetail(dateStr);
+    };
+    grid.appendChild(cell);
+  }
+
+  // Fill remaining cells
+  const total = startDow + lastDay.getDate();
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remaining; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    cell.innerHTML = '<div class="cal-num">' + d + '</div>';
+    grid.appendChild(cell);
+  }
+}
+
+function getTasksForDate(dateStr) {
+  if (!state.tasks) return [];
+  const date = new Date(dateStr + 'T12:00:00');
+  const dow = date.getDay(); // 0=Sun
+  const dowMon = dow === 0 ? 6 : dow - 1; // 0=Mon
+  const dayOfMonth = date.getDate();
+
+  return state.tasks.filter(t => {
+    if (t.recurrence === 'daily') return t.days.length === 0 || t.days.includes(dowMon);
+    if (t.recurrence === 'weekly') return t.days.includes(dowMon);
+    if (t.recurrence === 'monthly') return t.monthDay === dayOfMonth;
+    if (t.recurrence === 'onetime') return t.onetimeDate === dateStr;
+    return false;
+  });
+}
+
+function renderCalDayDetail(dateStr) {
+  const detail = document.getElementById('calDayDetail');
+  const tasks = getTasksForDate(dateStr);
+  const date = new Date(dateStr + 'T12:00:00');
+  const days = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  const months = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const title = days[date.getDay()] + ' ' + date.getDate() + '. ' + months[date.getMonth()];
+  if (tasks.length === 0) {
+    detail.innerHTML = '<div class="cal-day-detail-title">' + title + '</div><div class="cal-empty">Ingen opgaver</div>';
+    return;
+  }
+  detail.innerHTML = '<div class="cal-day-detail-title">' + title + '</div>' +
+    tasks.map(t => '<div class="cal-task-row"><div class="cal-task-emoji">' + t.emoji + '</div><div class="cal-task-info"><div class="cal-task-name">' + t.name + '</div><div class="cal-task-who">' + t.assignees.join(', ') + '</div></div></div>').join('');
+}
+
+function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+</script>
+
+  <div class="edit-modal-overlay" id="editModalOverlay">
+    <div class="edit-modal" style="position:relative;">
+      <button onclick="closeEditModal()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.06);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#999;line-height:1;">✕</button>
+      <h3>✏️ Rediger opgave</h3>
+      <div class="form-group">
+        <label class="form-label">Opgavenavn</label>
+        <input class="form-input" type="text" id="editTaskName" placeholder="Opgavenavn">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ikon</label>
+        <div class="edit-modal-emoji-grid" id="editEmojiGrid"></div>
+        <input type="hidden" id="editSelectedEmoji">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tildel til</label>
+        <div class="checkbox-group" id="editAssignees"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gentagelse</label>
+        <div class="recurrence-tabs">
+          <button class="recurrence-tab" onclick="setEditRecurrence('daily')" id="editRecDaily">Daglig</button>
+          <button class="recurrence-tab" onclick="setEditRecurrence('weekly')" id="editRecWeekly">Ugentlig</button>
+          <button class="recurrence-tab" onclick="setEditRecurrence('monthly')" id="editRecMonthly">Månedlig</button>
+        </div>
+        <div class="freq-options" id="editFreqDaily">
+          <label class="form-label" style="margin-top:8px;">Dage (tom = alle dage)</label>
+          <div class="day-chip-group" id="editDailyDays"></div>
+        </div>
+        <div class="freq-options" id="editFreqWeekly">
+          <label class="form-label" style="margin-top:8px;">Dage</label>
+          <div class="day-chip-group" id="editWeeklyDays"></div>
+        </div>
+        <div class="freq-options" id="editFreqMonthly">
+          <label class="form-label" style="margin-top:8px;">Dag i måneden</label>
+          <input class="form-input" type="number" id="editMonthlyDay" min="1" max="31" placeholder="fx 1">
+        </div>
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-secondary" onclick="closeEditModal()">Annuller</button>
+        <button class="btn-primary" onclick="saveEditTask()">💾 Gem</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
