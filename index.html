@@ -1285,6 +1285,7 @@ function renderTasks() {
     const card = document.createElement('div');
     card.className = `task-card ${isDone ? 'done' : ''}`;
     card.style.borderLeftColor = isDone ? '#CCC' : color;
+    card.dataset.taskId = task.id;
     card.innerHTML = `
       <div class="task-check" style="color:${isDone ? 'transparent' : color}">${isDone ? '✓' : ''}</div>
       <div class="task-info"><div class="task-name">${task.name}</div><div class="task-meta">${recLabel}</div></div>
@@ -1302,9 +1303,48 @@ async function toggleTask(taskId) {
   const key = completionKey(currentUser);
   if (!task.completions) task.completions = {};
   task.completions[key] = !task.completions[key];
-  renderTasks();
+  const isDone = task.completions[key];
+  const member = MEMBERS.find(m => m.name === currentUser);
+  const color = member ? member.color : '#FF6B6B';
+
+  // Opdater kun det berørte kort in-place (bevar sortering)
+  const card = document.querySelector(`[data-task-id="${taskId}"]`);
+  if (card) {
+    card.classList.toggle('done', isDone);
+    card.style.borderLeftColor = isDone ? '#CCC' : color;
+    const check = card.querySelector('.task-check');
+    if (check) {
+      check.style.color = isDone ? 'transparent' : color;
+      check.textContent = isDone ? '✓' : '';
+    }
+  }
+
+  // Opdater progress og dashboard uden at re-rendere opgavelisten
+  updateProgress();
   renderDashboard();
   await saveToCloud();
+}
+
+function updateProgress() {
+  if (!currentUser) return;
+  const tasks = state.tasks.filter(t => t.assignees.includes(currentUser) && taskIsToday(t));
+  const done = tasks.filter(t => isCompleted(t, currentUser)).length;
+  const total = tasks.length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+  const lit = Math.floor(pct / 20);
+  for (let i = 0; i < 5; i++) {
+    const s = document.getElementById(`star-${i}`);
+    if (s) s.classList.toggle('lit', i < lit);
+  }
+  if (total > 0 && pct === 100) {
+    const key = currentUser + '_' + todayStr();
+    if (!celebrationShown.has(key)) {
+      celebrationShown.add(key);
+      setTimeout(() => showCelebration(), 400);
+    }
+  }
 }
 
 function showCelebration() {
