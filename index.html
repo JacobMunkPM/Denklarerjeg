@@ -1376,7 +1376,10 @@ function completionKey(userId) { return `${userId}_${todayStr()}`; }
 function isCompleted(task, user) { return !!(task.completions && task.completions[completionKey(user)]); }
 function isOptionalCompleted(task) {
   if (!task.completions) return false;
-  return Object.keys(task.completions).some(k => k.startsWith('optional_') && task.completions[k]);
+  const todayKey = `optional_`;
+  return Object.keys(task.completions).some(k =>
+    k.startsWith('optional_') && k.endsWith('_' + todayStr()) && task.completions[k]
+  );
 }
 function optionalCompletedBy(task) {
   if (!task.completions) return null;
@@ -2254,8 +2257,9 @@ function closeWhoPicker() {
   whoPickerTaskId = null;
 }
 async function pickWho(memberName) {
+  const taskId = whoPickerTaskId;
   closeWhoPicker();
-  const task = state.tasks.find(t => t.id === whoPickerTaskId);
+  const task = state.tasks.find(t => t.id === taskId);
   if (!task) return;
   if (!task.completions) task.completions = {};
   task.completions[optionalCompletionKey(memberName)] = true;
