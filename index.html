@@ -1607,12 +1607,7 @@ function renderTasks() {
       container.innerHTML = `<div class="no-tasks"><div class="no-tasks-emoji">⭐</div><div class="no-tasks-text">Ingen valgfri opgaver i dag!</div><div class="no-tasks-sub">Tilføj dem i admin-panelet</div></div>`;
       return;
     }
-    const sorted = [...tasks].sort((a, b) => {
-      const doneA = isOptionalCompleted(a) ? 1 : 0;
-      const doneB = isOptionalCompleted(b) ? 1 : 0;
-      if (doneA !== doneB) return doneA - doneB;
-      return a.name.localeCompare(b.name, 'da');
-    });
+    const sorted = [...tasks].sort((a, b) => a.name.localeCompare(b.name, 'da'));
     sorted.forEach(task => {
       const isDone = isOptionalCompleted(task);
       const solvedBy = optionalCompletedBy(task);
@@ -1628,7 +1623,11 @@ function renderTasks() {
         </div>
         <div class="task-emoji">${task.emoji}</div>
       `;
-      if (!isDone) card.onclick = () => openWhoPicker(task.id);
+      if (isDone) {
+        card.onclick = () => undoOptionalTask(task.id);
+      } else {
+        card.onclick = () => openWhoPicker(task.id);
+      }
       container.appendChild(card);
     });
   }
@@ -2263,6 +2262,20 @@ async function pickWho(memberName) {
   if (!task) return;
   if (!task.completions) task.completions = {};
   task.completions[optionalCompletionKey(memberName)] = true;
+  renderTasks();
+  renderDashboard();
+  await saveToCloud();
+}
+
+async function undoOptionalTask(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task || !task.completions) return;
+  // Fjern dagens optional completion
+  Object.keys(task.completions).forEach(k => {
+    if (k.startsWith('optional_') && k.endsWith('_' + todayStr())) {
+      delete task.completions[k];
+    }
+  });
   renderTasks();
   renderDashboard();
   await saveToCloud();
