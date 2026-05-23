@@ -2182,29 +2182,25 @@ function renderUpcoming() {
   const DAYS_DA_FULL = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
   const MONTHS_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 1; i < 7; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     const dateStr = date.toISOString().split('T')[0];
-    const tasks = getTasksForDate(dateStr);
+    const tasks = getTasksForDate(dateStr).filter(t => !currentUser || t.assignees.includes(currentUser));
     if (tasks.length === 0) continue;
 
     const group = document.createElement('div');
     group.className = 'upcoming-day-group';
 
-    const isToday = i === 0;
-    const dayName = isToday ? 'I dag' : DAYS_DA_FULL[date.getDay()];
+    const dayName = DAYS_DA_FULL[date.getDay()];
     const dateLabel = date.getDate() + '. ' + MONTHS_SHORT[date.getMonth()];
 
     const label = document.createElement('div');
-    label.className = 'upcoming-day-label' + (isToday ? ' today-label' : '');
+    label.className = 'upcoming-day-label';
     label.textContent = dayName + ' · ' + dateLabel;
     group.appendChild(label);
 
     tasks.sort((a, b) => a.name.localeCompare(b.name, 'da')).forEach(task => {
-      // Completion: kun mulig for dags dato, pr. assignee
-      // Viser samlet done hvis alle assignees har afkrydset, ellers vis som ikke-done
-      // For simplicity: toggle for currentUser hvis sat, ellers første assignee
       const user = currentUser || task.assignees[0];
       const compKey = `${user}_${dateStr}`;
       const isDone = !!(task.completions && task.completions[compKey]);
@@ -2221,25 +2217,9 @@ function renderUpcoming() {
       row.onclick = async () => {
         if (!task.completions) task.completions = {};
         task.completions[compKey] = !task.completions[compKey];
-        // Opdater row in-place
         const done = task.completions[compKey];
         row.classList.toggle('done', done);
         row.querySelector('.upcoming-check').textContent = done ? '✓' : '';
-        // Opdater progress hvis det er i dag
-        if (isToday) {
-          updateProgress();
-          renderDashboard();
-          // Opdater også opgavekortet hvis det er åbent
-          const card = document.querySelector(`[data-task-id="${task.id}"]`);
-          if (card) {
-            const member = MEMBERS.find(m => m.name === user);
-            const color = member ? member.color : '#FF6B6B';
-            card.classList.toggle('done', done);
-            card.style.borderLeftColor = done ? '#CCC' : color;
-            const check = card.querySelector('.task-check');
-            if (check) { check.style.color = done ? 'transparent' : color; check.textContent = done ? '✓' : ''; }
-          }
-        }
         await saveToCloud();
       };
 
