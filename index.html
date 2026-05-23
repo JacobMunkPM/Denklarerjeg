@@ -879,7 +879,9 @@
     padding: 20px 16px 40px;
     box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
     animation: slideUp 0.3s cubic-bezier(.34,1.2,.64,1);
+    scrollbar-width: none;
   }
+  .upcoming-sheet::-webkit-scrollbar { display: none; }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
   .upcoming-header {
